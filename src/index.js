@@ -18,10 +18,10 @@ exports.main = async (req, res) => {
     })
   );
 
-  // Catch fetch errors TOTO: handle errors properly
+  // Catch fetch errors
   if (err) {
     console.log(err);
-    res.json("Error...");
+    res.json("Fetch error...");
     return;
   }
 
@@ -30,8 +30,6 @@ exports.main = async (req, res) => {
     header: true,
     dynamicTyping: true
   });
-
-  console.log(parsed.data);
 
   // Write json to tmp directory
   // Make it synchronous otherwise function will end prematurely
@@ -46,13 +44,9 @@ exports.main = async (req, res) => {
       port: 21,
       localRoot: "tmp",
       remoteRoot: credentials.remoteRoot,
-      // include: ["*", "**/*"],      // this would upload everything except dot files
-      include: ["*"],
-      // e.g. exclude sourcemaps, and ALL files in node_modules (including dot files)
+      include: ["data.json"],
       exclude: [],
-      // delete ALL existing files at destination before uploading, if true
       deleteRemote: false,
-      // Passive mode is forced (EPSV command is not sent)
       forcePasv: true
     })
   );
@@ -65,5 +59,6 @@ exports.main = async (req, res) => {
 
   console.log(ftpResponse);
 
-  res.json("OK!");
+  // Return the data (just in case)
+  res.json(parsed.data);
 };
