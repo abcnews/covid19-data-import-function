@@ -10,8 +10,8 @@ const credentials = require("./secret.json");
 const ORIGINAL_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 
-exports.main = async (req, res) => {
-  const [err, response] = await to(
+const main = async () => {
+  const [fetchErr, fetchResponse] = await to(
     axios({
       method: "get",
       url: ORIGINAL_DATA_URL
@@ -19,48 +19,49 @@ exports.main = async (req, res) => {
   );
 
   // Catch fetch errors
-  if (err) {
-    console.log(err);
+  if (fetchErr) {
+    console.log(fetchErr);
     res.json("Fetch error...");
     return;
   }
 
+  console.log("Remote file fetched...")
+
   // Parse the CSV data
-  const parsed = Papa.parse(response.data, {
+  const parsed = Papa.parse(fetchResponse.data, {
     header: true,
     dynamicTyping: true
   });
 
-  // Write json to tmp directory
-  // Make it synchronous otherwise function will end prematurely
-  fs.writeFileSync("/tmp/data.json", JSON.stringify(parsed.data));
+  console.log("CSV parsed...")
 
   // Upload to FTP
-  if (req.query.ftp === "true") {
-    const [ftpErr, ftpResponse] = await to(
-      ftpDeploy.deploy({
-        user: credentials.user,
-        password: credentials.password,
-        host: credentials.host,
-        port: 21,
-        localRoot: "tmp",
-        remoteRoot: credentials.remoteRoot,
-        include: ["data.json"],
-        exclude: [],
-        deleteRemote: false,
-        forcePasv: true
-      })
-    );
+  // Write json to tmp directory
+  fs.writeFileSync("/tmp/data.json", JSON.stringify(parsed.data));
 
-    if (ftpErr) {
-      console.log(ftpErr);
-      res.json("FTP error...");
-      return;
-    }
+  const [ftpErr, ftpResponse] = await to(
+    ftpDeploy.deploy({
+      user: credentials.user,
+      password: credentials.password,
+      host: credentials.host,
+      port: 21,
+      localRoot: "tmp",
+      remoteRoot: credentials.remoteRoot,
+      include: ["data.json"],
+      exclude: [],
+      deleteRemote: false,
+      forcePasv: true
+    })
+  );
 
-    console.log(ftpResponse);
+  if (ftpErr) {
+    console.log(ftpErr);
+    res.json("FTP error...");
+    return;
   }
 
-  // Return the data (just in case)
-  res.json(parsed.data);
+  console.log("Uploaded to FTP...")
+  console.log(ftpResponse);
 };
+
+main();
