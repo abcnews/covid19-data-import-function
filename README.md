@@ -17,4 +17,4 @@ Run `node src/index.js --timestamp` to also deploy a timestamped data file.
 Schedule
 --------
 
-Use [PM2](https://pm2.keymetrics.io/) or **cron** to schedule script executions.
+Use **cron** to schedule script executions.
