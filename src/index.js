@@ -79,6 +79,9 @@ const main = async () => {
   }
 
   console.log("Uploaded to FTP...", ftpResponse);
+  console.log(
+    "Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json"
+  );
 };
 
 main();
