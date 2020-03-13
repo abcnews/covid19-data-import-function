@@ -63,7 +63,7 @@ const main = async () => {
 
   // Write country totals after 100
   fs.writeFileSync("./tmp/after-100-cases.json", JSON.stringify(after100));
-  console.log("Temporary data written to after-100-cases.jso");
+  console.log("Temporary data written to after-100-cases.json");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
