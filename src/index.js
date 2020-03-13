@@ -12,6 +12,7 @@ const argv = require("yargs").argv;
 
 const credentials = require("./secret.json");
 const format = require("./format");
+const getCountryTotals = require("./getCountryTotals");
 
 const ORIGINAL_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
@@ -43,6 +44,9 @@ const main = async () => {
 
   // Format data
   const formattedData = format(parsed.data);
+  const countryTotals = getCountryTotals(formattedData);
+
+  // console.log(countryTotals);
 
   // Upload to FTP
   // Clear dir
