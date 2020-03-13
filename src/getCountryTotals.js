@@ -1,11 +1,5 @@
-const getCountryTotals = data => {
-  // const countries = data.filter(area => {
-  //   return area["Province/State"] !== null;
-  // });
-
-  // Don't filter countries
-  const countries = data;
-
+// Transform data adding together country totals
+const getCountryTotals = countries => {
   const newCountries = {};
 
   for (const country of countries) {
@@ -25,7 +19,6 @@ const getCountryTotals = data => {
     }
   }
 
-  console.log(newCountries);
   return newCountries;
 };
 

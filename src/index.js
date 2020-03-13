@@ -46,15 +46,18 @@ const main = async () => {
   const formattedData = format(parsed.data);
   const countryTotals = getCountryTotals(formattedData);
 
-  // console.log(countryTotals);
-
   // Upload to FTP
   // Clear dir
   rimraf.sync("./tmp/*");
   console.log("Cleaning tmp directory...");
 
+  // Write full data
   fs.writeFileSync("./tmp/data.json", JSON.stringify(formattedData));
   console.log("Temporary data written to data.json");
+
+  // Write country totals
+  fs.writeFileSync("./tmp/country-totals.json", JSON.stringify(countryTotals));
+  console.log("Temporary data written to country-totals.json");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
