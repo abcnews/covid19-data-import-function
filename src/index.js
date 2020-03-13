@@ -4,6 +4,11 @@ const Papa = require("papaparse");
 const fs = require("fs");
 const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
+const rimraf = require("rimraf");
+const argv = require("yargs").argv;
 
 const credentials = require("./secret.json");
 
@@ -20,12 +25,12 @@ const main = async () => {
 
   // Catch fetch errors
   if (fetchErr) {
-    console.log(fetchErr);
-    res.json("Fetch error...");
+    res.json("Fetch error...", fetchErr);
     return;
   }
 
-  console.log("Remote file fetched...")
+  console.log("Remote file fetched...");
+  console.log(ORIGINAL_DATA_URL);
 
   // Parse the CSV data
   const parsed = Papa.parse(fetchResponse.data, {
@@ -33,11 +38,25 @@ const main = async () => {
     dynamicTyping: true
   });
 
-  console.log("CSV parsed...")
+  console.log("CSV parsed...");
 
   // Upload to FTP
-  // Write json to tmp directory
-  fs.writeFileSync("/tmp/data.json", JSON.stringify(parsed.data));
+  // Clear dir
+  rimraf.sync("./tmp/*");
+  console.log("Cleaning tmp directory...");
+
+  fs.writeFileSync("./tmp/data.json", JSON.stringify(parsed.data));
+  console.log("Temporary data written to data.json");
+
+  // Also upload timestamped data with --timestamp argument
+  // eg. node src/index.js --timestamp
+  if (argv.timestamp) {
+    const filenameTime = dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]");
+    const tempFilenameWithTime = `./tmp/data${filenameTime}.json`;
+
+    fs.writeFileSync(tempFilenameWithTime, JSON.stringify(parsed.data));
+    console.log("Temporary data written to " + tempFilenameWithTime);
+  }
 
   const [ftpErr, ftpResponse] = await to(
     ftpDeploy.deploy({
@@ -45,23 +64,21 @@ const main = async () => {
       password: credentials.password,
       host: credentials.host,
       port: 21,
-      localRoot: "tmp",
+      localRoot: "./tmp",
       remoteRoot: credentials.remoteRoot,
-      include: ["data.json"],
-      exclude: [],
+      include: ["*"],
+      exclude: [".*"],
       deleteRemote: false,
       forcePasv: true
     })
   );
 
   if (ftpErr) {
-    console.log(ftpErr);
-    res.json("FTP error...");
+    res.json("FTP error...", ftpErr);
     return;
   }
 
-  console.log("Uploaded to FTP...")
-  console.log(ftpResponse);
+  console.log("Uploaded to FTP...", ftpResponse);
 };
 
 main();
