@@ -1,9 +1,21 @@
-const getAfter100 = data => {
-  const areasOver100 = data.filter(area => {
-    return area.Cases[area.Cases.length - 1].Confirmed >= 100;
-  });
+const getAfter100 = countries => {
+  const newCountries = {};
 
-  console.log(areasOver100);
+  for (const country in countries) {
+    const caseArray = Object.values(countries[country]);
+
+    if (caseArray[caseArray.length - 1] >= 100) {
+      newCountries[country] = {};
+
+      for (const day in countries[country]) {
+        if (countries[country][day] >= 100) {
+          newCountries[country][day] = countries[country][day];
+        }
+      }
+    }
+  }
+
+  return newCountries;
 };
 
 module.exports = getAfter100;

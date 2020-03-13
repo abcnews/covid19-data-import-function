@@ -13,6 +13,7 @@ const argv = require("yargs").argv;
 const credentials = require("./secret.json");
 const format = require("./format");
 const getCountryTotals = require("./getCountryTotals");
+const getAfter100 = require("./getAfter100");
 
 const ORIGINAL_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
@@ -45,6 +46,7 @@ const main = async () => {
   // Format data
   const formattedData = format(parsed.data);
   const countryTotals = getCountryTotals(formattedData);
+  const after100 = getAfter100(countryTotals);
 
   // Upload to FTP
   // Clear dir
@@ -58,6 +60,10 @@ const main = async () => {
   // Write country totals
   fs.writeFileSync("./tmp/country-totals.json", JSON.stringify(countryTotals));
   console.log("Temporary data written to country-totals.json");
+
+  // Write country totals after 100
+  fs.writeFileSync("./tmp/after-100-cases.json", JSON.stringify(after100));
+  console.log("Temporary data written to after-100-cases.jso");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
