@@ -106,7 +106,7 @@ const main = async () => {
       "Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json"
     );
     console.log(
-      "And https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json"
+      "And https://www.abc.net.au/dat/news/interactives/covid19-data/after-100-cases.json"
     );
   }
 };
