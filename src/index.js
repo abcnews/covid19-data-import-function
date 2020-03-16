@@ -28,7 +28,7 @@ const main = async () => {
 
   // Catch fetch errors
   if (fetchErr) {
-    res.json("Fetch error...", fetchErr);
+    console.log("Fetch error...", fetchErr);
     return;
   }
 
@@ -93,7 +93,7 @@ const main = async () => {
     );
 
     if (ftpErr) {
-      res.json("FTP error...", ftpErr);
+      console.log("FTP error...", ftpErr);
       return;
     }
 
