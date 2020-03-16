@@ -75,6 +75,7 @@ const main = async () => {
     console.log("Temporary data written to " + tempFilenameWithTime);
   }
 
+  // Deploy to FTP by default use --no-ftp to override
   if (argv.ftp || typeof argv.ftp === "undefined") {
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
@@ -96,13 +97,19 @@ const main = async () => {
       return;
     }
 
+    // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
     console.log(
       "Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json"
     );
-    console.log("Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json")
-    console.log("And https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json")
+    console.log(
+      "Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json"
+    );
+    console.log(
+      "And https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json"
+    );
   }
 };
 
+// Run main async function
 main();
