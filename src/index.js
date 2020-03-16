@@ -100,6 +100,8 @@ const main = async () => {
     console.log(
       "Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json"
     );
+    console.log("Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json")
+    console.log("And https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json")
   }
 };
 
