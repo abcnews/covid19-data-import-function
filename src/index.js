@@ -16,7 +16,9 @@ const formatWho = require("./formatWho");
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
 
-const ORIGINAL_DATA_URL =
+const getAndParseUrl = require("./getAndParseUrl");
+
+const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 const ORIGINAL_WHO_DATA_URL =
   "https://covid.ourworldindata.org/data/full_data.csv";
@@ -24,83 +26,12 @@ const ORIGINAL_ECDC_DATA_URL =
   "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
 
 const main = async () => {
-  // Fetch John Hopkins data
-  const [fetchErr, fetchResponse] = await to(
-    axios({
-      method: "get",
-      url: ORIGINAL_DATA_URL
-    })
-  );
-
-  // Catch fetch errors
-  if (fetchErr) {
-    console.log("Fetch error...", fetchErr);
-    return;
-  }
-
-  console.log("Remote John Hopkins file fetched...");
-  console.log(ORIGINAL_DATA_URL);
-
-  // Fetch WHO data
-  const [fetchWhoErr, fetchWhoResponse] = await to(
-    axios({
-      method: "get",
-      url: ORIGINAL_WHO_DATA_URL
-    })
-  );
-
-  // Catch fetch errors
-  if (fetchWhoErr) {
-    console.log("Fetch WHO error...", fetchErr);
-    return;
-  }
-
-  console.log("Remote WHO file fetched...");
-  console.log(ORIGINAL_WHO_DATA_URL);
-
-  // Fetch ECDC data
-  const [fetchEcdcErr, fetchEcdcResponse] = await to(
-    axios({
-      method: "get",
-      url: ORIGINAL_ECDC_DATA_URL
-    })
-  );
-
-  // Catch fetch errors
-  if (fetchEcdcErr) {
-    console.log("Fetch Ecdc error...", fetchEcdcErr);
-    return;
-  }
-
-  console.log("Remote ECDC file fetched...");
-  console.log(ORIGINAL_ECDC_DATA_URL);
-
-  // Parse the Johns Hopkins CSV data
-  const parsed = Papa.parse(fetchResponse.data, {
-    header: true,
-    dynamicTyping: true
-  });
-
-  console.log("CSV parsed...");
-
-  // Parse the WHO CSV data
-  const parsedWho = Papa.parse(fetchWhoResponse.data, {
-    header: true,
-    dynamicTyping: true
-  });
-
-  console.log("CSV WHO parsed...");
-
-  // Parse the ECDC CSV data
-  const parsedEcdc = Papa.parse(fetchEcdcResponse.data, {
-    header: true,
-    dynamicTyping: true
-  });
-
-  console.log("CSV ECDC parsed...");
+  const johnsHopkinsParsed = await getAndParseUrl(ORIGINAL_JOHNS_HOPKINS_DATA_URL);
+  const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
+  const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
 
   // Format data
-  const formattedData = format(parsed.data);
+  const formattedData = format(johnsHopkinsParsed.data);
   const countryTotals = getCountryTotals(formattedData);
   const after100 = getAfter100(countryTotals);
 
@@ -112,7 +43,7 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-  // Upload to FTP
+  // Write files to temporary directory
   // Clear dir
   rimraf.sync("./tmp/*");
   console.log("Cleaning tmp directory...");
@@ -167,6 +98,7 @@ const main = async () => {
   }
 
   // Deploy to FTP by default use --no-ftp to override
+  // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
@@ -204,6 +136,12 @@ const main = async () => {
     );
     console.log(
       "WHO after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/who-after-100-cases.json"
+    );
+    console.log(
+      "ECDC country totals: https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-country-totals.json"
+    );
+    console.log(
+      "ECDC after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-after-100-cases.json"
     );
   }
 };
