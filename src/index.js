@@ -26,6 +26,7 @@ const ORIGINAL_ECDC_DATA_URL =
   "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
 
 const main = async () => {
+  // Fetch data
   const johnsHopkinsParsed = await getAndParseUrl(ORIGINAL_JOHNS_HOPKINS_DATA_URL);
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
