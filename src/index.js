@@ -20,6 +20,8 @@ const ORIGINAL_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 const ORIGINAL_WHO_DATA_URL =
   "https://covid.ourworldindata.org/data/full_data.csv";
+const ORIGINAL_ECDC_DATA_URL =
+  "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
 
 const main = async () => {
   // Fetch John Hopkins data
@@ -39,14 +41,6 @@ const main = async () => {
   console.log("Remote John Hopkins file fetched...");
   console.log(ORIGINAL_DATA_URL);
 
-  // Parse the Johns Hopkins CSV data
-  const parsed = Papa.parse(fetchResponse.data, {
-    header: true,
-    dynamicTyping: true
-  });
-
-  console.log("CSV parsed...");
-
   // Fetch WHO data
   const [fetchWhoErr, fetchWhoResponse] = await to(
     axios({
@@ -64,13 +58,46 @@ const main = async () => {
   console.log("Remote WHO file fetched...");
   console.log(ORIGINAL_WHO_DATA_URL);
 
+  // Fetch ECDC data
+  const [fetchEcdcErr, fetchEcdcResponse] = await to(
+    axios({
+      method: "get",
+      url: ORIGINAL_ECDC_DATA_URL
+    })
+  );
+
+  // Catch fetch errors
+  if (fetchEcdcErr) {
+    console.log("Fetch Ecdc error...", fetchEcdcErr);
+    return;
+  }
+
+  console.log("Remote ECDC file fetched...");
+  console.log(ORIGINAL_ECDC_DATA_URL);
+
   // Parse the Johns Hopkins CSV data
+  const parsed = Papa.parse(fetchResponse.data, {
+    header: true,
+    dynamicTyping: true
+  });
+
+  console.log("CSV parsed...");
+
+  // Parse the WHO CSV data
   const parsedWho = Papa.parse(fetchWhoResponse.data, {
     header: true,
     dynamicTyping: true
   });
 
   console.log("CSV WHO parsed...");
+
+  // Parse the ECDC CSV data
+  const parsedEcdc = Papa.parse(fetchEcdcResponse.data, {
+    header: true,
+    dynamicTyping: true
+  });
+
+  console.log("CSV ECDC parsed...");
 
   // Format data
   const formattedData = format(parsed.data);
@@ -80,6 +107,10 @@ const main = async () => {
   // Format WHO data
   const whoCountryTotals = formatWho(parsedWho.data);
   const whoAfter100 = getAfter100(whoCountryTotals);
+
+  // Format ECDC data
+  const ecdcCountryTotals = formatWho(parsedEcdc.data);
+  const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
   // Upload to FTP
   // Clear dir
@@ -99,11 +130,30 @@ const main = async () => {
   console.log("Temporary data written to after-100-cases.json");
 
   // Write WHO data
-  fs.writeFileSync("./tmp/who-country-totals.json", JSON.stringify(whoCountryTotals));
+  fs.writeFileSync(
+    "./tmp/who-country-totals.json",
+    JSON.stringify(whoCountryTotals)
+  );
   console.log("Temporary data written to who-country-totals.json");
 
-  fs.writeFileSync("./tmp/who-after-100-cases.json", JSON.stringify(whoAfter100));
+  fs.writeFileSync(
+    "./tmp/who-after-100-cases.json",
+    JSON.stringify(whoAfter100)
+  );
   console.log("Temporary data written to who-after-100-cases.json");
+
+  // Write ECDC data
+  fs.writeFileSync(
+    "./tmp/ecdc-country-totals.json",
+    JSON.stringify(ecdcCountryTotals)
+  );
+  console.log("Temporary data written to ecdc-country-totals.json");
+
+  fs.writeFileSync(
+    "./tmp/ecdc-after-100-cases.json",
+    JSON.stringify(ecdcAfter100)
+  );
+  console.log("Temporary data written to ecdc-after-100-cases.json");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
