@@ -21,6 +21,8 @@ const getAfter100 = require("./getAfter100");
 
 const getAndParseUrl = require("./getAndParseUrl");
 
+let isHybridUpdatable = false;
+
 // const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
 //   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
@@ -100,13 +102,13 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-  // Collect hybrid data
+  // Collect hybrid data from Johns Hopkins
   const hybridData = { ...countryTotals };
 
   // Replace Australia with DSI data
   hybridData.Australia = dsiFormatted.Australia;
 
-  // Fill in missing China data
+  // Fill in missing China data from ECDC
   for (let day in ecdcCountryTotals.China) {
     if (typeof hybridData.China[day] === "undefined") {
       hybridData.China[day] = ecdcCountryTotals.China[day];
@@ -134,19 +136,64 @@ const main = async () => {
     }
   }
 
-  // Sort keys
-  const sortedHybridAustralia = {};
+  // Sort Hybrid data keys for added days
+  let sortedHybridAustralia = {};
   Object.keys(hybridData.Australia)
     .sort()
     .forEach(function(key) {
       sortedHybridAustralia[key] = hybridData.Australia[key];
     });
 
+  hybridData.Australia = sortedHybridAustralia;
+
+  let finalHybridDate;
+  let finalJohnsHopkinsDate;
+  // Make sure Australia is 1 day ahead (timezones are weird)
+  for (let day in hybridData.Australia) {
+    finalHybridDate = day;
+  }
+
+  for (let day in countryTotals.Australia) {
+    finalJohnsHopkinsDate = day;
+  }
+
+  console.log(dayjs(finalHybridDate).subtract(1, "day"));
+  console.log(dayjs(finalJohnsHopkinsDate));
+
+  if (
+    dayjs(finalHybridDate)
+      .subtract(1, "day")
+      .isSame(dayjs(finalJohnsHopkinsDate), "day")
+  ) {
+    console.log("Australia DSI data is 1 day ahead. We are go for update...");
+    isHybridUpdatable = true;
+
+    // Bump back each day 1 day
+    for (let day in hybridData.Australia) {
+      const theDayBefore = dayjs(day)
+        .subtract(1, "day")
+        .format("YYYY-MM-DD");
+      hybridData.Australia[theDayBefore] = hybridData.Australia[day];
+    }
+
+    // Delete duplicate latest date
+    delete hybridData.Australia[finalHybridDate];
+
+    // Sort Hybrid data keys for added days (YES AGAIN)
+    sortedHybridAustralia = {};
+    Object.keys(hybridData.Australia)
+      .sort()
+      .forEach(function(key) {
+        sortedHybridAustralia[key] = hybridData.Australia[key];
+      });
+
     hybridData.Australia = sortedHybridAustralia;
+  }
 
+  console.log(hybridData.Australia);
 
-
-    const hybridAfter100 = getAfter100(hybridData);
+  // Get after 100 cases data for hybrid
+  const hybridAfter100 = getAfter100(hybridData);
 
   // Write files to temporary directory
   // Clear dir
@@ -191,19 +238,20 @@ const main = async () => {
   );
   console.log("Temporary data written to ecdc-after-100-cases.json");
 
-  // Write Hybrid data to disk
-  fs.writeFileSync(
-    "./tmp/hybrid-country-totals.json",
-    JSON.stringify(hybridData)
-  );
-  console.log("Temporary data written to hybrid-country-totals.json");
+  // Write Hybrid data to disk, only if AUS 1 day ahead
+  if (isHybridUpdatable) {
+    fs.writeFileSync(
+      "./tmp/hybrid-country-totals.json",
+      JSON.stringify(hybridData)
+    );
+    console.log("Temporary data written to hybrid-country-totals.json");
 
-  fs.writeFileSync(
-    "./tmp/hybrid-after-100-cases.json",
-    JSON.stringify(hybridAfter100)
-  );
-  console.log("Temporary data written to hybrid-after-100-cases.json");
-
+    fs.writeFileSync(
+      "./tmp/hybrid-after-100-cases.json",
+      JSON.stringify(hybridAfter100)
+    );
+    console.log("Temporary data written to hybrid-after-100-cases.json");
+  }
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
