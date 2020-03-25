@@ -18,8 +18,10 @@ const getAfter100 = require("./getAfter100");
 
 const getAndParseUrl = require("./getAndParseUrl");
 
-const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
+// const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
+//   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
+  const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
 const ORIGINAL_WHO_DATA_URL =
   "https://covid.ourworldindata.org/data/full_data.csv";
 const ORIGINAL_ECDC_DATA_URL =
