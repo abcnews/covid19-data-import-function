@@ -6,7 +6,10 @@ const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
+var customParseFormat = require("dayjs/plugin/customParseFormat");
+require("dayjs/locale/en-au"); // load on demand
 dayjs.extend(utc);
+dayjs.extend(customParseFormat);
 const rimraf = require("rimraf");
 const argv = require("yargs").argv;
 
@@ -20,18 +23,69 @@ const getAndParseUrl = require("./getAndParseUrl");
 
 // const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
 //   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
-  const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
+const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+
 const ORIGINAL_WHO_DATA_URL =
   "https://covid.ourworldindata.org/data/full_data.csv";
+
 const ORIGINAL_ECDC_DATA_URL =
   "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
 
+const ORIGINAL_DSI_DATA =
+  "https://covid-sheets-mirror.web.app/api?sheet=1nUUU5zPRPlhAXM_-8R7lsMnAkK4jaebvIL5agAaKoXk&range=Daily%20Count%20States!A:E";
+
 const main = async () => {
   // Fetch data
-  const johnsHopkinsParsed = await getAndParseUrl(ORIGINAL_JOHNS_HOPKINS_DATA_URL);
+  const johnsHopkinsParsed = await getAndParseUrl(
+    ORIGINAL_JOHNS_HOPKINS_DATA_URL
+  );
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
+  const parsedDsi = await getAndParseUrl(ORIGINAL_DSI_DATA);
+
+  // console.log(parsedDsi.data);
+
+  // DSI needs extra processing
+
+  const dsiFormatted = { Australia: {} };
+
+  // Set up initial dates
+  for (const item of parsedDsi.data) {
+    if (item["Date announced"] === null) continue;
+
+    // Parse custom format
+    const actualDate = dayjs(item["Date announced"], "DD-MM-YYYY")
+      .locale("en-au")
+      .format();
+
+    dsiFormatted.Australia[dayjs(actualDate).format("YYYY-MM-DD")] = 0;
+  }
+
+  // Add totals
+  for (const item of parsedDsi.data) {
+    if (item["Date announced"] === null) continue;
+    // If undefined don't try to += because you will get NaN
+    if (!item["Cumulative confirmed"]) continue;
+
+    // Parse custom format
+    const actualDate = dayjs(item["Date announced"], "DD-MM-YYYY")
+      .locale("en-au")
+      .format();
+
+    dsiFormatted.Australia[dayjs(actualDate).format("YYYY-MM-DD")] +=
+      item["Cumulative confirmed"];
+  }
+
+  // Sort keys
+  const sortedAustralia = {};
+  Object.keys(dsiFormatted.Australia)
+    .sort()
+    .forEach(function(key) {
+      sortedAustralia[key] = dsiFormatted.Australia[key];
+    });
+
+  dsiFormatted.Australia = sortedAustralia;
 
   // Format data
   const formattedData = format(johnsHopkinsParsed.data);
@@ -45,6 +99,54 @@ const main = async () => {
   // Format ECDC data
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
+
+  // Collect hybrid data
+  const hybridData = { ...countryTotals };
+
+  // Replace Australia with DSI data
+  hybridData.Australia = dsiFormatted.Australia;
+
+  // Fill in missing China data
+  for (let day in ecdcCountryTotals.China) {
+    if (typeof hybridData.China[day] === "undefined") {
+      hybridData.China[day] = ecdcCountryTotals.China[day];
+    }
+  }
+
+  // Sort keys
+  const sortedChina = {};
+  Object.keys(hybridData.China)
+    .sort()
+    .forEach(function(key) {
+      sortedChina[key] = hybridData.China[key];
+    });
+
+  hybridData.China = sortedChina;
+
+  // Account for missing days in DSI
+  let currentDsiCount = 0;
+
+  for (let day in countryTotals.Australia) {
+    if (typeof hybridData.Australia[day] === "undefined") {
+      hybridData.Australia[day] = currentDsiCount;
+    } else {
+      currentDsiCount = hybridData.Australia[day];
+    }
+  }
+
+  // Sort keys
+  const sortedHybridAustralia = {};
+  Object.keys(hybridData.Australia)
+    .sort()
+    .forEach(function(key) {
+      sortedHybridAustralia[key] = hybridData.Australia[key];
+    });
+
+    hybridData.Australia = sortedHybridAustralia;
+
+
+
+    const hybridAfter100 = getAfter100(hybridData);
 
   // Write files to temporary directory
   // Clear dir
@@ -88,6 +190,20 @@ const main = async () => {
     JSON.stringify(ecdcAfter100)
   );
   console.log("Temporary data written to ecdc-after-100-cases.json");
+
+  // Write Hybrid data to disk
+  fs.writeFileSync(
+    "./tmp/hybrid-country-totals.json",
+    JSON.stringify(hybridData)
+  );
+  console.log("Temporary data written to hybrid-country-totals.json");
+
+  fs.writeFileSync(
+    "./tmp/hybrid-after-100-cases.json",
+    JSON.stringify(hybridAfter100)
+  );
+  console.log("Temporary data written to hybrid-after-100-cases.json");
+
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp

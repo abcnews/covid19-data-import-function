@@ -19,6 +19,8 @@ const getAndParseUrl = async url => {
     console.log("File fetched...", url)
   }
 
+  // console.log(fetchResponse.data)
+
   // Parse the Johns Hopkins CSV data
   const parsed = Papa.parse(fetchResponse.data, {
     header: true,
