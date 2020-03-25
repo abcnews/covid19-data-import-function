@@ -19,6 +19,9 @@ Schedule
 
 Use **cron** to schedule script executions.
 
+Data URLs
+---------
+
 Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
 
 Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json
