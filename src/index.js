@@ -169,17 +169,19 @@ const main = async () => {
     console.log("Australia DSI data is 1 day ahead. We are go for update...");
     isHybridUpdatable = true;
 
-    // Bump back each day 1 day
-    for (let day in hybridData.Australia) {
-      const theDayBefore = dayjs(day)
-        .subtract(1, "day")
-        .format("YYYY-MM-DD");
-      hybridData.Australia[theDayBefore] = hybridData.Australia[day];
-    }
+    // // Bump back each day 1 day
+    // for (let day in hybridData.Australia) {
+    //   const theDayBefore = dayjs(day)
+    //     .subtract(1, "day")
+    //     .format("YYYY-MM-DD");
+    //   hybridData.Australia[theDayBefore] = hybridData.Australia[day];
+    // }
+    // // Delete bumped up day
+    // delete hybridData.Australia["2020-01-21"];
 
-    // Delete duplicate latest date
+    // Delete latest date (probably incomplete)
     delete hybridData.Australia[finalHybridDate];
-    delete hybridData.Australia["2020-01-21"];
+    
 
     // Sort Hybrid data keys for added days (YES AGAIN)
     sortedHybridAustralia = {};
