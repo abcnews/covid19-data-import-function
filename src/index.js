@@ -46,10 +46,7 @@ const main = async () => {
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
   const parsedDsi = await getAndParseUrl(ORIGINAL_DSI_DATA);
 
-  // console.log(parsedDsi.data);
-
   // DSI needs extra processing
-
   const dsiFormatted = { Australia: {} };
 
   // Set up initial dates
@@ -110,6 +107,10 @@ const main = async () => {
 
   // Fill in missing China data from ECDC
   for (let day in ecdcCountryTotals.China) {
+    // Don't process after a certain date
+    if (dayjs(day).isAfter("2020-03-22", "day")) continue;
+
+    // Store missing dates
     if (typeof hybridData.China[day] === "undefined") {
       hybridData.China[day] = ecdcCountryTotals.China[day];
     }
@@ -178,6 +179,7 @@ const main = async () => {
 
     // Delete duplicate latest date
     delete hybridData.Australia[finalHybridDate];
+    delete hybridData.Australia["2020-01-21"];
 
     // Sort Hybrid data keys for added days (YES AGAIN)
     sortedHybridAustralia = {};
