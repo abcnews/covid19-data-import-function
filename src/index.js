@@ -1,15 +1,11 @@
-const axios = require("axios");
 const to = require("await-to-js").default;
-const Papa = require("papaparse");
 const fs = require("fs");
 const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
-var customParseFormat = require("dayjs/plugin/customParseFormat");
 require("dayjs/locale/en-au"); // load on demand
 dayjs.extend(utc);
-dayjs.extend(customParseFormat);
 const rimraf = require("rimraf");
 const argv = require("yargs").argv;
 
@@ -18,8 +14,9 @@ const format = require("./format");
 const formatWho = require("./formatWho");
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
-
 const getAndParseUrl = require("./getAndParseUrl");
+const getDsiData = require("./getDsiData");
+const colectHybridData = require("./collectHybridData");
 
 let isHybridUpdatable = false;
 
@@ -44,47 +41,7 @@ const main = async () => {
   );
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
-  const parsedDsi = await getAndParseUrl(ORIGINAL_DSI_DATA);
-
-  // DSI needs extra processing
-  const dsiFormatted = { Australia: {} };
-
-  // Set up initial dates
-  for (const item of parsedDsi.data) {
-    if (item["Date announced"] === null) continue;
-
-    // Parse custom format
-    const actualDate = dayjs(item["Date announced"], "DD-MM-YYYY")
-      .locale("en-au")
-      .format();
-
-    dsiFormatted.Australia[dayjs(actualDate).format("YYYY-MM-DD")] = 0;
-  }
-
-  // Add totals
-  for (const item of parsedDsi.data) {
-    if (item["Date announced"] === null) continue;
-    // If undefined don't try to += because you will get NaN
-    if (!item["Cumulative confirmed"]) continue;
-
-    // Parse custom format
-    const actualDate = dayjs(item["Date announced"], "DD-MM-YYYY")
-      .locale("en-au")
-      .format();
-
-    dsiFormatted.Australia[dayjs(actualDate).format("YYYY-MM-DD")] +=
-      item["Cumulative confirmed"];
-  }
-
-  // Sort keys
-  const sortedAustralia = {};
-  Object.keys(dsiFormatted.Australia)
-    .sort()
-    .forEach(function(key) {
-      sortedAustralia[key] = dsiFormatted.Australia[key];
-    });
-
-  dsiFormatted.Australia = sortedAustralia;
+  const dsiFormatted = await getDsiData(ORIGINAL_DSI_DATA);
 
   // Format data
   const formattedData = format(johnsHopkinsParsed.data);
@@ -99,54 +56,15 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-  // Collect hybrid data from Johns Hopkins
-  const hybridData = { ...countryTotals };
+  const hybridData = colectHybridData(
+    countryTotals,
+    dsiFormatted,
+    ecdcCountryTotals
+  );
 
-  // Replace Australia with DSI data
-  hybridData.Australia = dsiFormatted.Australia;
-
-  // Fill in missing China data from ECDC
-  for (let day in ecdcCountryTotals.China) {
-    // Don't process after a certain date
-    if (dayjs(day).isAfter("2020-03-22", "day")) continue;
-
-    // Store missing dates
-    if (typeof hybridData.China[day] === "undefined") {
-      hybridData.China[day] = ecdcCountryTotals.China[day];
-    }
-  }
-
-  // Sort keys
-  const sortedChina = {};
-  Object.keys(hybridData.China)
-    .sort()
-    .forEach(function(key) {
-      sortedChina[key] = hybridData.China[key];
-    });
-
-  hybridData.China = sortedChina;
-
-  // Account for missing days in DSI
-  let currentDsiCount = 0;
-
-  for (let day in countryTotals.Australia) {
-    if (typeof hybridData.Australia[day] === "undefined") {
-      hybridData.Australia[day] = currentDsiCount;
-    } else {
-      currentDsiCount = hybridData.Australia[day];
-    }
-  }
-
-  // Sort Hybrid data keys for added days
-  let sortedHybridAustralia = {};
-  Object.keys(hybridData.Australia)
-    .sort()
-    .forEach(function(key) {
-      sortedHybridAustralia[key] = hybridData.Australia[key];
-    });
-
-  hybridData.Australia = sortedHybridAustralia;
-
+  // Try to account for time zones and differing update times
+  // Previously we were shifting days. Now we remove latest DSI day
+  // TODO: Make a flag to unclude latest DSI in case we are at end of day
   let finalHybridDate;
   let finalJohnsHopkinsDate;
   // Make sure Australia is 1 day ahead (timezones are weird)
@@ -181,7 +99,6 @@ const main = async () => {
 
     // Delete latest date (probably incomplete)
     delete hybridData.Australia[finalHybridDate];
-    
 
     // Sort Hybrid data keys for added days (YES AGAIN)
     sortedHybridAustralia = {};
