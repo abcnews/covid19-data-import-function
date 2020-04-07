@@ -25,6 +25,12 @@ let isHybridUpdatable = false;
 const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
 
+const ORIGINAL_JOHNS_HOPKINS_DEATHS_URL =
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
+
+const ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL =
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
+
 const ORIGINAL_WHO_DATA_URL =
   "https://covid.ourworldindata.org/data/full_data.csv";
 
@@ -35,18 +41,37 @@ const ORIGINAL_DSI_DATA =
   "https://covid-sheets-mirror.web.app/api?sheet=1nUUU5zPRPlhAXM_-8R7lsMnAkK4jaebvIL5agAaKoXk&range=Daily%20Count%20States!A:E";
 
 const main = async () => {
-  // Fetch data
+  // Fetch all data
   const johnsHopkinsParsed = await getAndParseUrl(
     ORIGINAL_JOHNS_HOPKINS_DATA_URL
+  );
+  const johnsHopkinsDeathsParsed = await getAndParseUrl(
+    ORIGINAL_JOHNS_HOPKINS_DEATHS_URL
+  );
+  const johnsHopkinsRecoveredParsed = await getAndParseUrl(
+    ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL
   );
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
   const dsiFormatted = await getDsiData(ORIGINAL_DSI_DATA);
 
-  // Format data
+  // Format Johns Hopkins data
   const formattedData = format(johnsHopkinsParsed.data);
+  const formatedJohnsHopkinsDeathsData = format(johnsHopkinsDeathsParsed.data);
+  const formatedJohnsHopkinsRecoveredData = format(
+    johnsHopkinsRecoveredParsed.data
+  );
+
+  // Combine Johns Hopkins states into countries and reformat
   const countryTotals = getCountryTotals(formattedData);
   const after100 = getAfter100(countryTotals);
+
+  const johnsHopkinsDeathsCountryTotals = getCountryTotals(
+    formatedJohnsHopkinsDeathsData
+  );
+  const johnsHopkinsRecoveredCountryTotals = getCountryTotals(
+    formatedJohnsHopkinsRecoveredData
+  );
 
   // Format WHO data
   const whoCountryTotals = formatWho(parsedWho.data);
@@ -76,9 +101,6 @@ const main = async () => {
     finalJohnsHopkinsDate = day;
   }
 
-  console.log(dayjs(finalHybridDate).subtract(1, "day"));
-  console.log(dayjs(finalJohnsHopkinsDate));
-
   if (
     dayjs(finalHybridDate)
       .subtract(1, "day")
@@ -104,17 +126,76 @@ const main = async () => {
     sortedHybridAustralia = {};
     Object.keys(hybridData.Australia)
       .sort()
-      .forEach(function(key) {
+      .forEach(function (key) {
         sortedHybridAustralia[key] = hybridData.Australia[key];
       });
 
     hybridData.Australia = sortedHybridAustralia;
   }
 
-  console.log(hybridData.Australia);
-
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
+
+  // Now we want to include deaths etc in an EXTRA file
+  const hybridExtra = {};
+
+  // Move cases to own object
+  for (const country in hybridData) {
+    if (country === "undefined") continue;
+
+    hybridExtra[country] = {};
+
+    for (const date in hybridData[country]) {
+      hybridExtra[country][date] = { cases: hybridData[country][date] };
+    }
+  }
+
+  // Include deaths as own object
+  for (const country in johnsHopkinsDeathsCountryTotals) {
+    if (country === "undefined") continue;
+
+    for (const date in johnsHopkinsDeathsCountryTotals[country]) {
+      hybridExtra[country][date]["deaths"] =
+        johnsHopkinsDeathsCountryTotals[country][date];
+    }
+  }
+
+  // Include recovered as own object
+
+  for (const country in johnsHopkinsRecoveredCountryTotals) {
+    if (country === "undefined") continue;
+
+    for (const date in johnsHopkinsRecoveredCountryTotals[country]) {
+      hybridExtra[country][date]["recovered"] =
+        johnsHopkinsRecoveredCountryTotals[country][date];
+    }
+  }
+
+  // Small hacky way to manually include China deaths
+  hybridExtra.China["2019-12-31"]["deaths"] = 0;
+  hybridExtra.China["2020-01-01"]["deaths"] = 0;
+  hybridExtra.China["2020-01-02"]["deaths"] = 0;
+  hybridExtra.China["2020-01-03"]["deaths"] = 0;
+  hybridExtra.China["2020-01-04"]["deaths"] = 0;
+  hybridExtra.China["2020-01-05"]["deaths"] = 0;
+  hybridExtra.China["2020-01-06"]["deaths"] = 0;
+  hybridExtra.China["2020-01-07"]["deaths"] = 0;
+  hybridExtra.China["2020-01-08"]["deaths"] = 0;
+  hybridExtra.China["2020-01-09"]["deaths"] = 0;
+  hybridExtra.China["2020-01-10"]["deaths"] = 0;
+  hybridExtra.China["2020-01-11"]["deaths"] = 0;
+  hybridExtra.China["2020-01-12"]["deaths"] = 0;
+  hybridExtra.China["2020-01-13"]["deaths"] = 1;
+  hybridExtra.China["2020-01-14"]["deaths"] = 1;
+  hybridExtra.China["2020-01-15"]["deaths"] = 1;
+  hybridExtra.China["2020-01-16"]["deaths"] = 1;
+  hybridExtra.China["2020-01-17"]["deaths"] = 2;
+  hybridExtra.China["2020-01-18"]["deaths"] = 2;
+  hybridExtra.China["2020-01-19"]["deaths"] = 2;
+  hybridExtra.China["2020-01-20"]["deaths"] = 2;
+  hybridExtra.China["2020-01-21"]["deaths"] = 3;
+
+  console.log(hybridExtra);
 
   // Write files to temporary directory
   // Clear dir
@@ -174,6 +255,13 @@ const main = async () => {
     console.log("Temporary data written to hybrid-after-100-cases.json");
   }
 
+  // Write countries total with deaths etc
+  fs.writeFileSync(
+    "./tmp/country-totals-extra.json",
+    JSON.stringify(hybridExtra)
+  );
+  console.log("Temporary data written to country-totals-extra.json");
+
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
@@ -199,7 +287,7 @@ const main = async () => {
         include: ["*"],
         exclude: [".*"],
         deleteRemote: false,
-        forcePasv: true
+        forcePasv: true,
       })
     );
 
@@ -237,6 +325,9 @@ const main = async () => {
     );
     console.log(
       "ABC hybrid after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json"
+    );
+    console.log(
+      "ABC hybrid extra data (deaths etc.): https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals-extra.json"
     );
   }
 };
