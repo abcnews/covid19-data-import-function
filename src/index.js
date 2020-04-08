@@ -17,6 +17,7 @@ const getAfter100 = require("./getAfter100");
 const getAndParseUrl = require("./getAndParseUrl");
 const getDsiData = require("./getDsiData");
 const colectHybridData = require("./collectHybridData");
+const getHybridExtra = require("./getHybridExtra");
 
 let isHybridUpdatable = false;
 
@@ -78,9 +79,9 @@ const main = async () => {
 
   // Try to account for time zones and differing update times
   // Previously we were shifting days. Now we remove latest DSI day
-  // TODO: Make a flag to unclude latest DSI in case we are at end of day
   let finalHybridDate;
   let finalJohnsHopkinsDate;
+
   // Make sure Australia is 1 day ahead (timezones are weird)
   for (let day in hybridData.Australia) {
     finalHybridDate = day;
@@ -98,92 +99,21 @@ const main = async () => {
     console.log("Australia DSI data is 1 day ahead. We are go for update...");
     isHybridUpdatable = true;
 
-    // // Bump back each day 1 day
-    // for (let day in hybridData.Australia) {
-    //   const theDayBefore = dayjs(day)
-    //     .subtract(1, "day")
-    //     .format("YYYY-MM-DD");
-    //   hybridData.Australia[theDayBefore] = hybridData.Australia[day];
-    // }
-    // // Delete bumped up day
-    // delete hybridData.Australia["2020-01-21"];
-
     // Delete latest date (probably incomplete)
     delete hybridData.Australia[finalHybridDate];
 
     // Sort Hybrid data keys for added days (YES AGAIN)
-    sortedHybridAustralia = {};
-
-    Object.keys(hybridData.Australia)
-      .sort()
-      .forEach(function (key) {
-        sortedHybridAustralia[key] = hybridData.Australia[key];
-      });
-
-    hybridData.Australia = sortedHybridAustralia;
+    hybridData.Australia = sortKeys(hybridData.Australia);
   }
 
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
 
-  // Now we want to include deaths etc in an EXTRA file
-  const hybridExtra = {};
-
-  // Move cases to own object
-  for (const country in hybridData) {
-    if (country === "undefined") continue;
-
-    hybridExtra[country] = {};
-
-    for (const date in hybridData[country]) {
-      hybridExtra[country][date] = { cases: hybridData[country][date] };
-    }
-  }
-
-  // Include deaths as own object
-  for (const country in johnsHopkinsDeathsCountryTotals) {
-    if (country === "undefined") continue;
-
-    for (const date in johnsHopkinsDeathsCountryTotals[country]) {
-      hybridExtra[country][date]["deaths"] =
-        johnsHopkinsDeathsCountryTotals[country][date];
-    }
-  }
-
-  // Include recovered as own object
-
-  for (const country in johnsHopkinsRecoveredCountryTotals) {
-    if (country === "undefined") continue;
-
-    for (const date in johnsHopkinsRecoveredCountryTotals[country]) {
-      hybridExtra[country][date]["recovered"] =
-        johnsHopkinsRecoveredCountryTotals[country][date];
-    }
-  }
-
-  // Small hacky way to manually include China deaths
-  hybridExtra.China["2019-12-31"]["deaths"] = 0;
-  hybridExtra.China["2020-01-01"]["deaths"] = 0;
-  hybridExtra.China["2020-01-02"]["deaths"] = 0;
-  hybridExtra.China["2020-01-03"]["deaths"] = 0;
-  hybridExtra.China["2020-01-04"]["deaths"] = 0;
-  hybridExtra.China["2020-01-05"]["deaths"] = 0;
-  hybridExtra.China["2020-01-06"]["deaths"] = 0;
-  hybridExtra.China["2020-01-07"]["deaths"] = 0;
-  hybridExtra.China["2020-01-08"]["deaths"] = 0;
-  hybridExtra.China["2020-01-09"]["deaths"] = 0;
-  hybridExtra.China["2020-01-10"]["deaths"] = 0;
-  hybridExtra.China["2020-01-11"]["deaths"] = 0;
-  hybridExtra.China["2020-01-12"]["deaths"] = 0;
-  hybridExtra.China["2020-01-13"]["deaths"] = 1;
-  hybridExtra.China["2020-01-14"]["deaths"] = 1;
-  hybridExtra.China["2020-01-15"]["deaths"] = 1;
-  hybridExtra.China["2020-01-16"]["deaths"] = 1;
-  hybridExtra.China["2020-01-17"]["deaths"] = 2;
-  hybridExtra.China["2020-01-18"]["deaths"] = 2;
-  hybridExtra.China["2020-01-19"]["deaths"] = 2;
-  hybridExtra.China["2020-01-20"]["deaths"] = 2;
-  hybridExtra.China["2020-01-21"]["deaths"] = 3;
+  const hybridExtra = getHybridExtra({
+    originalData: hybridData,
+    deaths: johnsHopkinsDeathsCountryTotals,
+    recovered: johnsHopkinsRecoveredCountryTotals,
+  });
 
   // Write files to temporary directory
   // Clear dir
@@ -322,3 +252,29 @@ const main = async () => {
 
 // Run main async function
 main();
+
+
+// Helper functions
+function sortKeys(unsortedObject) {
+  sortedObject = {};
+
+  Object.keys(unsortedObject)
+    .sort()
+    .forEach(function (key) {
+      sortedObject[key] = unsortedObject[key];
+    });
+
+  return sortedObject;
+}
+
+// OLD CODE
+
+// // Bump back each day 1 day
+// for (let day in hybridData.Australia) {
+//   const theDayBefore = dayjs(day)
+//     .subtract(1, "day")
+//     .format("YYYY-MM-DD");
+//   hybridData.Australia[theDayBefore] = hybridData.Australia[day];
+// }
+// // Delete bumped up day
+// delete hybridData.Australia["2020-01-21"];
