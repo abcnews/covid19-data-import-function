@@ -11,7 +11,7 @@ const getRegions = ({ cases, deaths, recovered }) => {
       type: "region",
       dates: {},
     };
-    
+
     for (const total of area.Cases) {
       newRegions[area["Province/State"]].dates[total.Date] = {
         cases: total.Confirmed,
@@ -20,9 +20,21 @@ const getRegions = ({ cases, deaths, recovered }) => {
   }
 
   // Now add deaths
-  for (const area of cases) {
+  for (const area of deaths) {
     if (area["Province/State"] === null) continue;
-    console.log(area);
+    
+    for (const total of area.Cases) {
+      newRegions[area["Province/State"]].dates[total.Date].deaths = total.Confirmed
+    }
+  }
+
+  // Now do recovered
+  for (const area of recovered) {
+    if (area["Province/State"] === null) continue;
+    
+    for (const total of area.Cases) {
+      newRegions[area["Province/State"]].dates[total.Date].recovered = total.Confirmed
+    }
   }
 
   return newRegions;

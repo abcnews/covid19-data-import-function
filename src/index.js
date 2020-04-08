@@ -54,15 +54,15 @@ const main = async () => {
     johnsHopkinsRecoveredParsed.data
   );
 
-  // formattedData.forEach((data) => {
-  //   console.log(data);
-  // });
 
+  // Object containing all the regions that are part of countries
   const formattedRegions = getRegions({
     cases: formattedData,
     deaths: formatedJohnsHopkinsDeathsData,
     recovered: formatedJohnsHopkinsRecoveredData,
   });
+
+
 
   // Combine Johns Hopkins states into countries and reformat
   const countryTotals = getCountryTotals(formattedData);
@@ -129,7 +129,7 @@ const main = async () => {
   });
 
   // One master file to rule them all
-  const placesTotals = getPlacesTotals({ countries: hybridExtra });
+  const placesTotals = getPlacesTotals({ countries: hybridExtra, regions: formattedRegions });
 
   // console.log(placesTotals);
 

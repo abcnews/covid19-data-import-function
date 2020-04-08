@@ -1,5 +1,5 @@
 const getPlacesTotals = (dataObject) => {
-  const { countries } = dataObject;
+  const { countries, regions } = dataObject;
 
   const placeTotals = {};
 
@@ -9,6 +9,12 @@ const getPlacesTotals = (dataObject) => {
       dates: countries[countryName],
     };
   }
+
+  for (const regionName in regions) {
+    placeTotals[regionName] = regions[regionName];
+  }
+
+  // Cool except Diamond Princess is returning as a region....... fix this
 
   return placeTotals;
 };
