@@ -20,25 +20,14 @@ const colectHybridData = require("./collectHybridData");
 
 let isHybridUpdatable = false;
 
-// const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
-//   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
-const ORIGINAL_JOHNS_HOPKINS_DATA_URL =
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
-
-const ORIGINAL_JOHNS_HOPKINS_DEATHS_URL =
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
-
-const ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL =
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
-
-const ORIGINAL_WHO_DATA_URL =
-  "https://covid.ourworldindata.org/data/full_data.csv";
-
-const ORIGINAL_ECDC_DATA_URL =
-  "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
-
-const ORIGINAL_DSI_DATA =
-  "https://covid-sheets-mirror.web.app/api?sheet=1nUUU5zPRPlhAXM_-8R7lsMnAkK4jaebvIL5agAaKoXk&range=Daily%20Count%20States!A:E";
+const {
+  ORIGINAL_JOHNS_HOPKINS_DATA_URL,
+  ORIGINAL_JOHNS_HOPKINS_DEATHS_URL,
+  ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL,
+  ORIGINAL_WHO_DATA_URL,
+  ORIGINAL_ECDC_DATA_URL,
+  ORIGINAL_DSI_DATA,
+} = require("./urls");
 
 const main = async () => {
   // Fetch all data
@@ -124,6 +113,7 @@ const main = async () => {
 
     // Sort Hybrid data keys for added days (YES AGAIN)
     sortedHybridAustralia = {};
+
     Object.keys(hybridData.Australia)
       .sort()
       .forEach(function (key) {
@@ -194,8 +184,6 @@ const main = async () => {
   hybridExtra.China["2020-01-19"]["deaths"] = 2;
   hybridExtra.China["2020-01-20"]["deaths"] = 2;
   hybridExtra.China["2020-01-21"]["deaths"] = 3;
-
-  console.log(hybridExtra);
 
   // Write files to temporary directory
   // Clear dir
