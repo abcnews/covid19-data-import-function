@@ -18,6 +18,8 @@ const getAndParseUrl = require("./getAndParseUrl");
 const getDsiData = require("./getDsiData");
 const colectHybridData = require("./collectHybridData");
 const getHybridExtra = require("./getHybridExtra");
+const getPlacesTotals = require("./getPlacesTotals");
+const getRegions = require("./getRegions");
 
 let isHybridUpdatable = false;
 
@@ -51,6 +53,16 @@ const main = async () => {
   const formatedJohnsHopkinsRecoveredData = format(
     johnsHopkinsRecoveredParsed.data
   );
+
+  // formattedData.forEach((data) => {
+  //   console.log(data);
+  // });
+
+  const formattedRegions = getRegions({
+    cases: formattedData,
+    deaths: formatedJohnsHopkinsDeathsData,
+    recovered: formatedJohnsHopkinsRecoveredData,
+  });
 
   // Combine Johns Hopkins states into countries and reformat
   const countryTotals = getCountryTotals(formattedData);
@@ -109,11 +121,17 @@ const main = async () => {
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
 
+  // Counries cases deaths recovered
   const hybridExtra = getHybridExtra({
     originalData: hybridData,
     deaths: johnsHopkinsDeathsCountryTotals,
     recovered: johnsHopkinsRecoveredCountryTotals,
   });
+
+  // One master file to rule them all
+  const placesTotals = getPlacesTotals({ countries: hybridExtra });
+
+  // console.log(placesTotals);
 
   // Write files to temporary directory
   // Clear dir
@@ -171,6 +189,9 @@ const main = async () => {
       JSON.stringify(hybridAfter100)
     );
     console.log("Temporary data written to hybrid-after-100-cases.json");
+
+    fs.writeFileSync("./tmp/places-totals.json", JSON.stringify(placesTotals));
+    console.log("Temporary data written to places-totals.json");
   }
 
   // Write countries total with deaths etc
@@ -252,7 +273,6 @@ const main = async () => {
 
 // Run main async function
 main();
-
 
 // Helper functions
 function sortKeys(unsortedObject) {

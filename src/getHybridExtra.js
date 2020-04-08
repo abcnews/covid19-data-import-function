@@ -61,6 +61,29 @@ const {originalData, deaths, recovered} = dataObject
   hybridExtra.China["2020-01-20"]["deaths"] = 2;
   hybridExtra.China["2020-01-21"]["deaths"] = 3;
 
+  hybridExtra.China["2019-12-31"]["recovered"] = 0;
+  hybridExtra.China["2020-01-01"]["recovered"] = 0;
+  hybridExtra.China["2020-01-02"]["recovered"] = 0;
+  hybridExtra.China["2020-01-03"]["recovered"] = 0;
+  hybridExtra.China["2020-01-04"]["recovered"] = 0;
+  hybridExtra.China["2020-01-05"]["recovered"] = 0;
+  hybridExtra.China["2020-01-06"]["recovered"] = 0;
+  hybridExtra.China["2020-01-07"]["recovered"] = 0;
+  hybridExtra.China["2020-01-08"]["recovered"] = 0;
+  hybridExtra.China["2020-01-09"]["recovered"] = 0;
+  hybridExtra.China["2020-01-10"]["recovered"] = 0;
+  hybridExtra.China["2020-01-11"]["recovered"] = 0;
+  hybridExtra.China["2020-01-12"]["recovered"] = 0;
+  hybridExtra.China["2020-01-13"]["recovered"] = 0;
+  hybridExtra.China["2020-01-14"]["recovered"] = 0;
+  hybridExtra.China["2020-01-15"]["recovered"] = 0;
+  hybridExtra.China["2020-01-16"]["recovered"] = 0;
+  hybridExtra.China["2020-01-17"]["recovered"] = 0;
+  hybridExtra.China["2020-01-18"]["recovered"] = 0;
+  hybridExtra.China["2020-01-19"]["recovered"] = 0;
+  hybridExtra.China["2020-01-20"]["recovered"] = 0;
+  hybridExtra.China["2020-01-21"]["recovered"] = 0;
+
   return hybridExtra;
 };
 
