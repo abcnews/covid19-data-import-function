@@ -54,15 +54,12 @@ const main = async () => {
     johnsHopkinsRecoveriesParsed.data
   );
 
-
   // Object containing all the regions that are part of countries
   const formattedRegions = getRegions({
     cases: formattedData,
     deaths: formatedJohnsHopkinsDeathsData,
     recoveries: formatedJohnsHopkinsRecoveriesData,
   });
-
-
 
   // Combine Johns Hopkins states into countries and reformat
   const countryTotals = getCountryTotals(formattedData);
@@ -83,6 +80,13 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
+
+
+
+  // TODO add extra categories like worldwide
+  console.log(ecdcAfter100);
+
+  // Combining Johns Hopkins + DSI + some ECDC
   const hybridData = colectHybridData(
     countryTotals,
     dsiFormatted,
@@ -129,7 +133,10 @@ const main = async () => {
   });
 
   // One master file to rule them all
-  const placesTotals = getPlacesTotals({ countries: hybridExtra, regions: formattedRegions });
+  const placesTotals = getPlacesTotals({
+    countries: hybridExtra,
+    regions: formattedRegions,
+  });
 
   // console.log(placesTotals);
 

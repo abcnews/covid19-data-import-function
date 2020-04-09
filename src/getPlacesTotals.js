@@ -11,10 +11,11 @@ const getPlacesTotals = (dataObject) => {
   }
 
   for (const regionName in regions) {
+    // Regional data for Diamond Princess is all zeros (and probably incorrect)
+    if (regionName === "Diamond Princess") continue;
+
     placeTotals[regionName] = regions[regionName];
   }
-
-  // Cool except Diamond Princess is returning as a region....... fix this
 
   return placeTotals;
 };
