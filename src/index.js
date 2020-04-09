@@ -26,7 +26,7 @@ let isHybridUpdatable = false;
 const {
   ORIGINAL_JOHNS_HOPKINS_DATA_URL,
   ORIGINAL_JOHNS_HOPKINS_DEATHS_URL,
-  ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL,
+  ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL,
   ORIGINAL_WHO_DATA_URL,
   ORIGINAL_ECDC_DATA_URL,
   ORIGINAL_DSI_DATA,
@@ -40,8 +40,8 @@ const main = async () => {
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
     ORIGINAL_JOHNS_HOPKINS_DEATHS_URL
   );
-  const johnsHopkinsRecoveredParsed = await getAndParseUrl(
-    ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL
+  const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
+    ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL
   );
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
@@ -50,8 +50,8 @@ const main = async () => {
   // Format Johns Hopkins data
   const formattedData = format(johnsHopkinsParsed.data);
   const formatedJohnsHopkinsDeathsData = format(johnsHopkinsDeathsParsed.data);
-  const formatedJohnsHopkinsRecoveredData = format(
-    johnsHopkinsRecoveredParsed.data
+  const formatedJohnsHopkinsRecoveriesData = format(
+    johnsHopkinsRecoveriesParsed.data
   );
 
 
@@ -59,7 +59,7 @@ const main = async () => {
   const formattedRegions = getRegions({
     cases: formattedData,
     deaths: formatedJohnsHopkinsDeathsData,
-    recovered: formatedJohnsHopkinsRecoveredData,
+    recoveries: formatedJohnsHopkinsRecoveriesData,
   });
 
 
@@ -71,8 +71,8 @@ const main = async () => {
   const johnsHopkinsDeathsCountryTotals = getCountryTotals(
     formatedJohnsHopkinsDeathsData
   );
-  const johnsHopkinsRecoveredCountryTotals = getCountryTotals(
-    formatedJohnsHopkinsRecoveredData
+  const johnsHopkinsRecoveriesCountryTotals = getCountryTotals(
+    formatedJohnsHopkinsRecoveriesData
   );
 
   // Format WHO data
@@ -121,11 +121,11 @@ const main = async () => {
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
 
-  // Counries cases deaths recovered
+  // Counries cases deaths recoveries
   const hybridExtra = getHybridExtra({
     originalData: hybridData,
     deaths: johnsHopkinsDeathsCountryTotals,
-    recovered: johnsHopkinsRecoveredCountryTotals,
+    recoveries: johnsHopkinsRecoveriesCountryTotals,
   });
 
   // One master file to rule them all

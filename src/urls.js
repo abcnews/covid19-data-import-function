@@ -4,7 +4,7 @@ exports.ORIGINAL_JOHNS_HOPKINS_DATA_URL =
 exports.ORIGINAL_JOHNS_HOPKINS_DEATHS_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
 
-exports.ORIGINAL_JOHNS_HOPKINS_RECOVERED_URL =
+exports.ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
 
 exports.ORIGINAL_WHO_DATA_URL =

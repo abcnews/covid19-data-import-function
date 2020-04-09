@@ -1,5 +1,5 @@
 // Transform data adding together country totals
-const getRegions = ({ cases, deaths, recovered }) => {
+const getRegions = ({ cases, deaths, recoveries }) => {
   const newRegions = {};
 
   // Lets do cases totals
@@ -28,12 +28,12 @@ const getRegions = ({ cases, deaths, recovered }) => {
     }
   }
 
-  // Now do recovered
-  for (const area of recovered) {
+  // Now do recoveries
+  for (const area of recoveries) {
     if (area["Province/State"] === null) continue;
     
     for (const total of area.Cases) {
-      newRegions[area["Province/State"]].dates[total.Date].recovered = total.Confirmed
+      newRegions[area["Province/State"]].dates[total.Date].recoveries = total.Confirmed
     }
   }
 
