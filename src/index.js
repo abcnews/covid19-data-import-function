@@ -80,11 +80,8 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-
-
-
   // TODO add extra categories like worldwide
-  console.log(ecdcAfter100);
+  // console.log(ecdcAfter100);
 
   // Combining Johns Hopkins + DSI + some ECDC
   const hybridData = colectHybridData(
@@ -122,6 +119,8 @@ const main = async () => {
     hybridData.Australia = sortKeys(hybridData.Australia);
   }
 
+  console.log(hybridData.Australia);
+
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
 
@@ -137,8 +136,6 @@ const main = async () => {
     countries: hybridExtra,
     regions: formattedRegions,
   });
-
-  // console.log(placesTotals);
 
   // Write files to temporary directory
   // Clear dir
