@@ -24,7 +24,8 @@ const getAndParseUrl = async url => {
   // Parse the Johns Hopkins CSV data
   const parsed = Papa.parse(fetchResponse.data, {
     header: true,
-    dynamicTyping: true
+    dynamicTyping: true,
+    skipEmptyLines: true
   });
 
   console.log("CSV parsed...");

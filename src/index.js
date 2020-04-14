@@ -6,8 +6,12 @@ const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 require("dayjs/locale/en-au"); // load on demand
 dayjs.extend(utc);
+const customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
 const rimraf = require("rimraf");
 const argv = require("yargs").argv;
+const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
+const { parse } = require("date-fns");
 
 const credentials = require("./secret.json");
 const format = require("./format");
@@ -20,23 +24,23 @@ const colectHybridData = require("./collectHybridData");
 const getHybridExtra = require("./getHybridExtra");
 const getPlacesTotals = require("./getPlacesTotals");
 const getRegions = require("./getRegions");
+const parseLocalAcquisitionData = require("./parseLocalAcquisitionData");
 
 let isHybridUpdatable = false;
 
 const {
-  ORIGINAL_JOHNS_HOPKINS_DATA_URL,
+  JOHNS_HOPKINS_DATA_URL,
   ORIGINAL_JOHNS_HOPKINS_DEATHS_URL,
   ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL,
   ORIGINAL_WHO_DATA_URL,
   ORIGINAL_ECDC_DATA_URL,
-  ORIGINAL_DSI_DATA,
+  DSI_DATA_URL,
+  DSI_SOURCE_OF_INFECTION_URL,
 } = require("./urls");
 
 const main = async () => {
   // Fetch all data
-  const johnsHopkinsParsed = await getAndParseUrl(
-    ORIGINAL_JOHNS_HOPKINS_DATA_URL
-  );
+  const johnsHopkinsParsed = await getAndParseUrl(JOHNS_HOPKINS_DATA_URL);
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
     ORIGINAL_JOHNS_HOPKINS_DEATHS_URL
   );
@@ -45,7 +49,7 @@ const main = async () => {
   );
   const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
   const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
-  const dsiFormatted = await getDsiData(ORIGINAL_DSI_DATA);
+  const dsiFormatted = await getDsiData(DSI_DATA_URL);
 
   // Format Johns Hopkins data
   const formattedData = format(johnsHopkinsParsed.data);
@@ -136,6 +140,13 @@ const main = async () => {
     countries: hybridExtra,
     regions: formattedRegions,
   });
+
+  // Separate DSI data for Simon's piece
+  const dsiSourceOfInfection = await getAndParseUrl(
+    DSI_SOURCE_OF_INFECTION_URL
+  );
+
+  console.log(parseLocalAcquisitionData(dsiSourceOfInfection.data));
 
   // Write files to temporary directory
   // Clear dir
@@ -271,6 +282,9 @@ const main = async () => {
     );
     console.log(
       "ABC hybrid extra data (deaths etc.): https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals-extra.json"
+    );
+    console.log(
+      "Combined data with deaths and recovered and regions etc: https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json"
     );
   }
 };
