@@ -146,7 +146,9 @@ const main = async () => {
     DSI_SOURCE_OF_INFECTION_URL
   );
 
-  console.log(parseLocalAcquisitionData(dsiSourceOfInfection.data));
+  const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
+    dsiSourceOfInfection.data
+  );
 
   // Write files to temporary directory
   // Clear dir
@@ -215,6 +217,13 @@ const main = async () => {
     JSON.stringify(hybridExtra)
   );
   console.log("Temporary data written to country-totals-extra.json");
+
+    // Write countries total with deaths etc
+    fs.writeFileSync(
+      "./tmp/dsi-local-acquisition.json",
+      JSON.stringify(dsiSourceOfInfectionParsed)
+    );
+    console.log("Temporary data written to dsi-local-acquisition.json");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
@@ -285,6 +294,9 @@ const main = async () => {
     );
     console.log(
       "Combined data with deaths and recovered and regions etc: https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json"
+    );
+    console.log(
+      "DSI source of infection data: https://www.abc.net.au/dat/news/interactives/covid19-data/dsi-local-acquisition.json"
     );
   }
 };
