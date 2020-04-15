@@ -218,12 +218,12 @@ const main = async () => {
   );
   console.log("Temporary data written to country-totals-extra.json");
 
-    // Write countries total with deaths etc
-    fs.writeFileSync(
-      "./tmp/dsi-local-acquisition.json",
-      JSON.stringify(dsiSourceOfInfectionParsed)
-    );
-    console.log("Temporary data written to dsi-local-acquisition.json");
+  // Write countries total with deaths etc
+  fs.writeFileSync(
+    "./tmp/dsi-local-acquisition.json",
+    JSON.stringify(dsiSourceOfInfectionParsed)
+  );
+  console.log("Temporary data written to dsi-local-acquisition.json");
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp

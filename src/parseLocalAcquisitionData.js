@@ -54,4 +54,4 @@ const parseLocalAcquisitionData = (data) => {
   }, []);
 };
 
-module.exports = parseLocalAcquisitionData
+module.exports = parseLocalAcquisitionData;
