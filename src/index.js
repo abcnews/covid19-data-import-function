@@ -240,9 +240,6 @@ const main = async () => {
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
-    // Backup remote data first just in case
-    backupData();
-
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
         user: credentials.user,
@@ -262,6 +259,9 @@ const main = async () => {
       console.log("FTP error...", ftpErr);
       return;
     }
+
+    // Backup remote data first just in case
+    backupData();
 
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
