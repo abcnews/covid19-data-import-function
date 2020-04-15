@@ -1,4 +1,5 @@
 const axios = require("axios");
+const fs = require("fs");
 const BASE_URL = "https://www.abc.net.au/dat/news/interactives/covid19-data/";
 
 const backupFiles = [
@@ -15,6 +16,19 @@ const backupFiles = [
   "places-totals.json",
 ];
 
-const backupData = async () => {};
+const dir = "./backup";
+
+const backupData = async () => {
+  for (const fileName of backupFiles) {
+    const reply = await axios.get(BASE_URL + fileName);
+
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+
+    fs.writeFileSync("./backup/" + fileName, JSON.stringify(reply.data));
+    console.log("Backup data written to: " + fileName);
+  }
+};
 
 module.exports = backupData;

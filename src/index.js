@@ -25,6 +25,7 @@ const getHybridExtra = require("./getHybridExtra");
 const getPlacesTotals = require("./getPlacesTotals");
 const getRegions = require("./getRegions");
 const parseLocalAcquisitionData = require("./parseLocalAcquisitionData");
+const backupData = require("./backupData");
 
 let isHybridUpdatable = false;
 
@@ -239,6 +240,9 @@ const main = async () => {
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
+    // Backup remote data first just in case
+    backupData();
+
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
         user: credentials.user,
