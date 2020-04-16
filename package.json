@@ -19,6 +19,7 @@
     "ftp-deploy": "^2.3.6",
     "papaparse": "^5.1.1",
     "rimraf": "^3.0.2",
+    "slugify": "^1.4.0",
     "yargs": "^15.3.0"
   }
 }

@@ -12,6 +12,7 @@ const rimraf = require("rimraf");
 const argv = require("yargs").argv;
 const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
+const slugify = require("slugify");
 
 const credentials = require("./secret.json");
 const format = require("./format");
@@ -237,9 +238,36 @@ const main = async () => {
     console.log("Temporary data written to " + tempFilenameWithTime);
   }
 
+  // Let's make a static api to save data transfers if
+  // people only want a certain country
+
+  const dir = "./tmp/places/";
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  for (const placeName in placesTotals) {
+    const individualPlace = { name: placeName, ...placesTotals[placeName] };
+    const slugifiedPlaceName = slugify(placeName, {
+      replacement: "-", // replace spaces with replacement character, defaults to `-`
+      remove: undefined, // remove characters that match regex, defaults to `undefined`
+      lower: true, // convert to lower case, defaults to `false`
+      strict: true, // strip special characters except replacement, defaults to `false`
+    });
+    fs.writeFileSync(
+      dir + slugifiedPlaceName + ".json",
+      JSON.stringify(individualPlace)
+    );
+    console.log(slugifiedPlaceName + ".json");
+  }
+
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
+    // Backup remote data first just in case
+    await backupData();
+
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
         user: credentials.user,
@@ -259,9 +287,6 @@ const main = async () => {
       console.log("FTP error...", ftpErr);
       return;
     }
-
-    // Backup remote data first just in case
-    backupData();
 
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
@@ -302,6 +327,10 @@ const main = async () => {
     console.log(
       "DSI source of infection data: https://www.abc.net.au/dat/news/interactives/covid19-data/dsi-local-acquisition.json"
     );
+    console.log(
+      "Individual places also available at eg: https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json"
+    );
+    console.log("Just change the filename to the place you want (slugified)");
   }
 };
 
