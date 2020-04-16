@@ -240,7 +240,6 @@ const main = async () => {
 
   // Let's make a static api to save data transfers if
   // people only want a certain country
-
   const dir = "./tmp/places/";
 
   if (!fs.existsSync(dir)) {
