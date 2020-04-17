@@ -86,9 +86,6 @@ const main = async () => {
   const ecdcCountryTotals = formatWho(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-  // TODO add extra categories like worldwide
-  // console.log(ecdcAfter100);
-
   // Combining Johns Hopkins + DSI + some ECDC
   const hybridData = colectHybridData(
     countryTotals,
@@ -258,7 +255,6 @@ const main = async () => {
       dir + slugifiedPlaceName + ".json",
       JSON.stringify(individualPlace)
     );
-    console.log(slugifiedPlaceName + ".json");
   }
 
   // Deploy to FTP by default use --no-ftp to override
