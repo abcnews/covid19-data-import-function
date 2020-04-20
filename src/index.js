@@ -13,8 +13,7 @@ const argv = require("yargs").argv;
 const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
-const PromiseFtp = require("promise-ftp");
-const ftp = new PromiseFtp();
+
 
 const credentials = require("./secret.json");
 const format = require("./format");
@@ -64,42 +63,6 @@ const {
 //   });
 
 const main = async () => {
-  // Some ftp tests for backup purposes
-  const connectionResponse = await ftp.connect({
-    host: credentials.host,
-    user: credentials.user,
-    password: credentials.password,
-  });
-
-  // Backup main files
-  await ftp.cwd("/www/dat/news/interactives/covid19-data");
-
-  const fileList = await ftp.list();
-
-  for (const item of fileList) {
-    if (item.type === "-") {
-      const fileStream = await ftp.get(item.name);
-      console.log(item.name);
-      fileStream.pipe(fs.createWriteStream("backup/" + item.name));
-    }
-  }
-
-  // Backup places directory
-  await ftp.cwd("/www/dat/news/interactives/covid19-data/places");
-  console.log("dir changed");
-
-  const placesList = await ftp.list();
-
-  for (const item of placesList) {
-    if (item.type === "-") {
-      const fileStream = await ftp.get(item.name);
-      console.log(item.name);
-      fileStream.pipe(fs.createWriteStream("backup/places" + item.name));
-    }
-  }
-
-  await ftp.end();
-
   // Fetch all data
   const johnsHopkinsParsed = await getAndParseUrl(JOHNS_HOPKINS_DATA_URL);
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
