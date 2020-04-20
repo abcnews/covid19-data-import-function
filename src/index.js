@@ -145,9 +145,13 @@ const main = async () => {
     DSI_SOURCE_OF_INFECTION_URL
   );
 
+  console.log(dsiSourceOfInfection.data)
+
   const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
     dsiSourceOfInfection.data
   );
+
+  console.log(dsiSourceOfInfectionParsed);
 
   // Write files to temporary directory
   // Clear dir
