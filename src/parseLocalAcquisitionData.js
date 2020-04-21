@@ -49,7 +49,7 @@ const parseLocalAcquisitionData = (data) => {
   return rolled.reduce((acc, [timestamp, data]) => {
     return acc.concat(
       data.map(([jurisdiction, cumulative]) => ({
-        date: new Date(timestamp),
+        date: dayjs(timestamp).format("YYYY-MM-DD"), //new Date(timestamp),
         // timestamp,
         jurisdiction,
         cumulative,

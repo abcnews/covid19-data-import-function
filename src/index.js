@@ -14,7 +14,6 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 
-
 const credentials = require("./secret.json");
 const format = require("./format");
 const formatWho = require("./formatWho");
@@ -40,8 +39,6 @@ const {
   DSI_DATA_URL,
   DSI_SOURCE_OF_INFECTION_URL,
 } = require("./urls");
-
-
 
 const main = async () => {
   // Fetch all data
@@ -148,11 +145,11 @@ const main = async () => {
     DSI_SOURCE_OF_INFECTION_URL
   );
 
-  console.log(dsiSourceOfInfection.data);
-
   const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
     dsiSourceOfInfection.data
   );
+
+  console.log(dsiSourceOfInfectionParsed);
 
   // Write files to temporary directory
   // Clear dir
