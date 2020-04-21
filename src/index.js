@@ -41,26 +41,7 @@ const {
   DSI_SOURCE_OF_INFECTION_URL,
 } = require("./urls");
 
-// Some ftp tests for backup purposes
-// ftp
-//   .connect({
-//     host: credentials.host,
-//     user: credentials.user,
-//     password: credentials.password,
-//   })
-//   .then(function (serverMessage) {
-//     console.log("Server message: " + serverMessage);
-//     return ftp.list("/");
-//   })
-//   .then(function (list) {
-//     console.log("Directory listing:");
-//     console.dir(list);
-//     return ftp.cwd("/www/dat/news/interactives/covid19-data");
-//   })
-//   .then((response) => {
-//     console.log(response);
-//     return ftp.list("/");
-//   });
+
 
 const main = async () => {
   // Fetch all data

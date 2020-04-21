@@ -5,6 +5,8 @@ const ftp = new PromiseFtp();
 
 const credentials = require("./secret.json");
 
+// TODO: ROLL BACKUPS INTO A ZIP FILE
+
 // const BASE_URL = "https://www.abc.net.au/dat/news/interactives/covid19-data/";
 
 // const backupFiles = [
