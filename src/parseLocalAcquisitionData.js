@@ -11,8 +11,6 @@ const parseLocalAcquisitionData = (data) => {
     .map((d) => {
       const date = parse(d["Date"], "dd/MM/yyyy", new Date());
 
-      console.log(d["Date"])
-
       return {
         date,
         timestamp: date.getTime(),

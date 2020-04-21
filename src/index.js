@@ -28,7 +28,8 @@ const getRegions = require("./getRegions");
 const parseLocalAcquisitionData = require("./parseLocalAcquisitionData");
 const backupData = require("./backupData");
 
-let isHybridUpdatable = false;
+// TODO: this isn't needed any more I think (check)
+let isHybridUpdatable = true;
 
 const {
   JOHNS_HOPKINS_DATA_URL,
@@ -98,31 +99,35 @@ const main = async () => {
   let finalHybridDate;
   let finalJohnsHopkinsDate;
 
-  // Make sure Australia is 1 day ahead (timezones are weird)
+  // Get the last day by looping through
+  // TODO: probably find a more direct way to do this
   for (let day in hybridData.Australia) {
     finalHybridDate = day;
   }
-
   for (let day in countryTotals.Australia) {
     finalJohnsHopkinsDate = day;
   }
 
-  if (
-    dayjs(finalHybridDate)
-      .subtract(1, "day")
-      .isSame(dayjs(finalJohnsHopkinsDate), "day")
-  ) {
-    console.log("Australia DSI data is 1 day ahead. We are go for update...");
-    isHybridUpdatable = true;
+  // Now we don't need the days to line up
+  // Up to date data is more important
+  // So we just check all the data is in
+  // by checking if total cases is the same or higher
+  const hybridAustraliaFinalDayCount = hybridData.Australia[finalHybridDate];
+  const hybridAustraliaPenultimateDayCount =
+    hybridData.Australia[
+      dayjs(finalHybridDate).subtract(1, "day").format("YYYY-MM-DD")
+    ];
 
+  console.log(
+    "Latest day: " + hybridAustraliaFinalDayCount,
+    "Yesterday count: " + hybridAustraliaPenultimateDayCount
+  );
+
+  if (hybridAustraliaFinalDayCount < hybridAustraliaPenultimateDayCount) {
+    console.log("DSI data likely incomplete. Deleting final day.");
     // Delete latest date (probably incomplete)
     delete hybridData.Australia[finalHybridDate];
-
-    // Sort Hybrid data keys for added days (YES AGAIN)
-    hybridData.Australia = sortKeys(hybridData.Australia);
   }
-
-  console.log(hybridData.Australia);
 
   // Get after 100 cases data for hybrid
   const hybridAfter100 = getAfter100(hybridData);
@@ -148,8 +153,6 @@ const main = async () => {
   const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
     dsiSourceOfInfection.data
   );
-
-  console.log(dsiSourceOfInfectionParsed);
 
   // Write files to temporary directory
   // Clear dir
@@ -346,6 +349,8 @@ function sortKeys(unsortedObject) {
   return sortedObject;
 }
 
+
+
 // OLD CODE
 
 // // Bump back each day 1 day
@@ -357,3 +362,19 @@ function sortKeys(unsortedObject) {
 // }
 // // Delete bumped up day
 // delete hybridData.Australia["2020-01-21"];
+
+// Make sure Johns Hopkins and DSI data line up days
+// if (
+//   dayjs(finalHybridDate)
+//     .subtract(1, "day")
+//     .isSame(dayjs(finalJohnsHopkinsDate), "day")
+// ) {
+//   console.log("Australia DSI data is 1 day ahead. We are go for update...");
+//   isHybridUpdatable = true;
+
+//   // Delete latest date (probably incomplete)
+//   delete hybridData.Australia[finalHybridDate];
+
+//   // Sort Hybrid data keys for added days (YES AGAIN)
+//   hybridData.Australia = sortKeys(hybridData.Australia);
+// }
