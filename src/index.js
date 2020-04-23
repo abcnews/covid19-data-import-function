@@ -31,9 +31,12 @@ const backupData = require("./backupData");
 // TODO: this isn't needed any more I think (check)
 let isHybridUpdatable = true;
 
+const startTime = dayjs();
+
 console.log(`##########################################
 WELCOME TO THE COVID-19 DATA PIPELINE TOOL
-##########################################`);
+##########################################
+The time is: ${startTime.format()}`);
 
 const {
   JOHNS_HOPKINS_DATA_URL,
@@ -277,8 +280,14 @@ const main = async () => {
     }
 
     console.log(
-      "Deploying from /tmp to remote FTP. This might take a while..."
+      "Deploying from /tmp to remote FTP. This might take a while...\n"
     );
+
+    ftpDeploy.on("uploading", function (data) {// total file count being transferred
+      console.log(`Transferred ${data.transferredFileCount} of ${data.totalFilesCount}`); // number of files transferred
+      console.log(data.filename); // partial path with filename being uploaded
+    });
+
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
         user: credentials.user,
@@ -337,6 +346,8 @@ Individual places also available at eg:
 https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json
 Just change the filename to the place you want (slugified) eg. new-zealand.json`);
   }
+
+  console.log(`Operation took: ${dayjs().diff(startTime, "minutes", true)} minutes`);
 };
 
 // Run main async function

@@ -2,6 +2,8 @@
 const fs = require("fs");
 const PromiseFtp = require("promise-ftp");
 const ftp = new PromiseFtp();
+const { zip } = require("zip-a-folder");
+const dayjs = require("dayjs");
 
 const credentials = require("./secret.json");
 
@@ -23,21 +25,21 @@ const credentials = require("./secret.json");
 //   "places-totals.json",
 // ];
 
-// const dir = "./backup";
+// Make sure backup and archive folders exist
+const backupDir = "./backup";
+const archiveDir = "./archive";
+
+makeDirIfNotExist(backupDir);
+makeDirIfNotExist(archiveDir);
+
+function makeDirIfNotExist(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+}
 
 const backupData = async () => {
-  // for (const fileName of backupFiles) {
-  //   const reply = await axios.get(BASE_URL + fileName);
-
-  //   if (!fs.existsSync(dir)) {
-  //     fs.mkdirSync(dir);
-  //   }
-
-  //   fs.writeFileSync("./backup/" + fileName, JSON.stringify(reply.data));
-  //   console.log("Backup data written to: " + fileName);
-  // }
-
-  // Some ftp tests for backup purposes
+  // Some ftp credentials for backup purposes
   const connectionResponse = await ftp.connect({
     host: credentials.host,
     user: credentials.user,
@@ -72,6 +74,11 @@ const backupData = async () => {
   }
 
   await ftp.end();
+
+  await zip(
+    "backup",
+    `archive/backup-${dayjs().format("YYYY-MM-DDTHH-mm-ss")}.zip`
+  );
 };
 
 module.exports = backupData;
