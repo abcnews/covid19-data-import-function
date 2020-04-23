@@ -4,32 +4,20 @@ const PromiseFtp = require("promise-ftp");
 const ftp = new PromiseFtp();
 const { zip } = require("zip-a-folder");
 const dayjs = require("dayjs");
+const rimraf = require("rimraf");
 
 const credentials = require("./secret.json");
 
-// TODO: ROLL BACKUPS INTO A ZIP FILE
-
-// const BASE_URL = "https://www.abc.net.au/dat/news/interactives/covid19-data/";
-
-// const backupFiles = [
-//   "data.json",
-//   "country-totals.json",
-//   "after-100-cases.json",
-//   "who-country-totals.json",
-//   "who-after-100-cases.json",
-//   "ecdc-country-totals.json",
-//   "ecdc-after-100-cases.json",
-//   "hybrid-country-totals.json",
-//   "hybrid-after-100-cases.json",
-//   "country-totals-extra.json",
-//   "places-totals.json",
-// ];
+// First clear current backups
+rimraf.sync("./backup/*");
 
 // Make sure backup and archive folders exist
 const backupDir = "./backup";
+const placesDir = "./backup/places"
 const archiveDir = "./archive";
 
 makeDirIfNotExist(backupDir);
+makeDirIfNotExist(placesDir);
 makeDirIfNotExist(archiveDir);
 
 function makeDirIfNotExist(dir) {
