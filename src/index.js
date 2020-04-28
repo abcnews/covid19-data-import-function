@@ -275,6 +275,7 @@ const main = async () => {
     // Use --no-backup to avoid backing up
     if (argv.backup || typeof argv.backup === "undefined") {
       // Backup remote data first just in case
+      console.log("Backing up data...")
       await backupData();
       console.log("Data backed up...");
     }
