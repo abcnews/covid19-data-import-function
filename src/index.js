@@ -275,7 +275,7 @@ const main = async () => {
     // Use --no-backup to avoid backing up
     if (argv.backup || typeof argv.backup === "undefined") {
       // Backup remote data first just in case
-      console.log("Backing up data...")
+      console.log("Backing up data...");
       await backupData();
       console.log("Data backed up...");
     }
@@ -284,8 +284,11 @@ const main = async () => {
       "Deploying from /tmp to remote FTP. This might take a while...\n"
     );
 
-    ftpDeploy.on("uploading", function (data) {// total file count being transferred
-      console.log(`Transferred ${data.transferredFileCount} of ${data.totalFilesCount}`); // number of files transferred
+    ftpDeploy.on("uploading", function (data) {
+      // total file count being transferred
+      console.log(
+        `Transferred ${data.transferredFileCount} of ${data.totalFilesCount}`
+      ); // number of files transferred
       console.log(data.filename); // partial path with filename being uploaded
     });
 
@@ -348,7 +351,11 @@ https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json
 Just change the filename to the place you want (slugified) eg. new-zealand.json`);
   }
 
-  console.log(`Operation took: ${dayjs().diff(startTime, "minutes", true)} minutes`);
+  console.log(
+    `Operation took: ${dayjs()
+      .diff(startTime, "minutes", true)
+      .toFixed(2)} minutes`
+  );
 };
 
 // Run main async function
