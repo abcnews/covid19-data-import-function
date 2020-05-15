@@ -1,5 +1,6 @@
 const to = require("await-to-js").default;
 const fs = require("fs");
+const path = require("path");
 const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
 const dayjs = require("dayjs");
@@ -27,6 +28,23 @@ const getPlacesTotals = require("./getPlacesTotals");
 const getRegions = require("./getRegions");
 const parseLocalAcquisitionData = require("./parseLocalAcquisitionData");
 const backupData = require("./backupData");
+
+const TEMP_PATH = path.join(__dirname, `../tmp`);
+
+function writeTempJSON(name, jsonOrObject) {
+  if (!fs.existsSync(TEMP_PATH)) {
+    fs.mkdirSync(TEMP_PATH, { recursive: true });
+  }
+
+  fs.writeFileSync(
+    path.join(TEMP_PATH, `${name}.json`),
+    typeof jsonOrObject === "object"
+      ? JSON.stringify(jsonOrObject)
+      : jsonOrObject
+  );
+
+  console.log(`Temporary data written to ${name}.json`);
+}
 
 // TODO: this isn't needed any more I think (check)
 let isHybridUpdatable = true;
@@ -163,96 +181,55 @@ const main = async () => {
 
   // Write files to temporary directory
   // Clear dir
-  rimraf.sync("./tmp/*");
+  rimraf.sync(TEMP_PATH);
   console.log("Cleaning tmp directory...");
 
   // Write full data
-  fs.writeFileSync("./tmp/data.json", JSON.stringify(formattedData));
-  console.log("Temporary data written to data.json");
+  writeTempJSON("data", formattedData);
 
   // Write country totals
-  fs.writeFileSync("./tmp/country-totals.json", JSON.stringify(countryTotals));
-  console.log("Temporary data written to country-totals.json");
+  writeTempJSON("country-totals", countryTotals);
 
   // Write country totals after 100
-  fs.writeFileSync("./tmp/after-100-cases.json", JSON.stringify(after100));
-  console.log("Temporary data written to after-100-cases.json");
+  writeTempJSON("after-100-cases", after100);
 
   // Write WHO data
-  fs.writeFileSync(
-    "./tmp/who-country-totals.json",
-    JSON.stringify(whoCountryTotals)
-  );
-  console.log("Temporary data written to who-country-totals.json");
-
-  fs.writeFileSync(
-    "./tmp/who-after-100-cases.json",
-    JSON.stringify(whoAfter100)
-  );
-  console.log("Temporary data written to who-after-100-cases.json");
+  writeTempJSON("who-country-totals", whoCountryTotals);
+  writeTempJSON("who-after-100-cases", whoAfter100);
 
   // Write ECDC data
-  fs.writeFileSync(
-    "./tmp/ecdc-country-totals.json",
-    JSON.stringify(ecdcCountryTotals)
-  );
-  console.log("Temporary data written to ecdc-country-totals.json");
-
-  fs.writeFileSync(
-    "./tmp/ecdc-after-100-cases.json",
-    JSON.stringify(ecdcAfter100)
-  );
-  console.log("Temporary data written to ecdc-after-100-cases.json");
+  writeTempJSON("ecdc-country-totals", ecdcCountryTotals);
+  writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
 
   // Write Hybrid data to disk, only if AUS 1 day ahead
   if (isHybridUpdatable) {
-    fs.writeFileSync(
-      "./tmp/hybrid-country-totals.json",
-      JSON.stringify(hybridData)
-    );
-    console.log("Temporary data written to hybrid-country-totals.json");
-
-    fs.writeFileSync(
-      "./tmp/hybrid-after-100-cases.json",
-      JSON.stringify(hybridAfter100)
-    );
-    console.log("Temporary data written to hybrid-after-100-cases.json");
-
-    fs.writeFileSync("./tmp/places-totals.json", JSON.stringify(placesTotals));
-    console.log("Temporary data written to places-totals.json");
+    writeTempJSON("hybrid-country-totals", hybridData);
+    writeTempJSON("hybrid-after-100-cases", hybridAfter100);
+    writeTempJSON("places-totals", placesTotals);
   }
 
   // Write countries total with deaths etc
-  fs.writeFileSync(
-    "./tmp/country-totals-extra.json",
-    JSON.stringify(hybridExtra)
-  );
-  console.log("Temporary data written to country-totals-extra.json");
+  writeTempJSON("country-totals-extra", hybridExtra);
 
   // Write countries total with deaths etc
-  fs.writeFileSync(
-    "./tmp/dsi-local-acquisition.json",
-    JSON.stringify(dsiSourceOfInfectionParsed)
-  );
-  console.log("Temporary data written to dsi-local-acquisition.json");
+  writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
   if (argv.timestamp) {
-    const filenameTime = dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]");
-    const tempFilenameWithTime = `./tmp/data${filenameTime}.json`;
-
-    fs.writeFileSync(tempFilenameWithTime, JSON.stringify(formattedData));
-    console.log("Temporary data written to " + tempFilenameWithTime);
+    writeTempJSON(
+      `data${dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]")}`,
+      formattedData
+    );
   }
 
   // Let's make a static api to save data transfers if
   // people only want a certain country
-  const dir = "./tmp/places/";
+  const tempPlacesPath = path.join(TEMP_PATH, "places");
 
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+  if (!fs.existsSync(tempPlacesPath)) {
+    fs.mkdirSync(tempPlacesPath, { recursive: true });
   }
 
   for (const placeName in placesTotals) {
@@ -263,10 +240,7 @@ const main = async () => {
       lower: true, // convert to lower case, defaults to `false`
       strict: true, // strip special characters except replacement, defaults to `false`
     });
-    fs.writeFileSync(
-      dir + slugifiedPlaceName + ".json",
-      JSON.stringify(individualPlace)
-    );
+    writeTempJSON(`places/${slugifiedPlaceName}`, individualPlace);
   }
 
   // Deploy to FTP by default use --no-ftp to override
