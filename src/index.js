@@ -14,6 +14,7 @@ const argv = require("yargs").argv;
 const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
+const query = require("cli-interact").getYesNo;
 
 const credentials = require("./secret.json");
 const format = require("./format");
@@ -246,6 +247,9 @@ const main = async () => {
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
+    var answer = query("ABC network (or VPN) access required for backup and upload. Ready? (y/n)");
+    console.log("You answered:", answer);
+
     // Use --no-backup to avoid backing up
     if (argv.backup || typeof argv.backup === "undefined") {
       // Backup remote data first just in case
