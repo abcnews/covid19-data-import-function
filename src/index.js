@@ -247,7 +247,7 @@ const main = async () => {
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
-    var answer = query("ABC network (or VPN) access required for backup and upload. Ready? (y/n)");
+    var answer = query("ABC network (or VPN) access required for backup and upload. Ready?");
     console.log("You answered:", answer);
 
     // Use --no-backup to avoid backing up
