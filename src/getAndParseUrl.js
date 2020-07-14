@@ -1,11 +1,20 @@
 const axios = require("axios");
 const to = require("await-to-js").default;
 const Papa = require("papaparse");
+const https = require('https');
+
+// Allows self-signed certs (as ABC Network sometimes
+// creates.)
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({  
+    rejectUnauthorized: false
+  })
+});
 
 const getAndParseUrl = async (url) => {
   // Fetch John Hopkins data
   const [fetchErr, fetchResponse] = await to(
-    axios({
+    axiosInstance({
       method: "get",
       url: url,
     })
