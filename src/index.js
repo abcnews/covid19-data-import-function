@@ -17,8 +17,11 @@ const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 
 const credentials = require("./secret.json");
-const format = require("./format");
-const formatWho = require("./formatWho");
+const {
+  formatJohnsHopkins,
+  formatWhoOrEcdc,
+  formatCtpUsStates,
+} = require("./format");
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
 const getAndParseUrl = require("./getAndParseUrl");
@@ -26,7 +29,7 @@ const getDsiData = require("./getDsiData");
 const colectHybridData = require("./collectHybridData");
 const getHybridExtra = require("./getHybridExtra");
 const getPlacesTotals = require("./getPlacesTotals");
-const getRegions = require("./getRegions");
+const getJohnsHopkinsRegions = require("./getJohnsHopkinsRegions");
 const parseLocalAcquisitionData = require("./parseLocalAcquisitionData");
 const backupData = require("./backupData");
 
@@ -58,64 +61,78 @@ WELCOME TO THE COVID-19 DATA PIPELINE TOOL
 The time is: ${startTime.format()}`);
 
 const {
-  JOHNS_HOPKINS_DATA_URL,
-  ORIGINAL_JOHNS_HOPKINS_DEATHS_URL,
-  ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL,
-  ORIGINAL_WHO_DATA_URL,
-  ORIGINAL_ECDC_DATA_URL,
+  JOHNS_HOPKINS_CASES_URL,
+  JOHNS_HOPKINS_DEATHS_URL,
+  JOHNS_HOPKINS_RECOVERIES_URL,
+  WHO_DATA_URL,
+  ECDC_DATA_URL,
   DSI_DATA_URL,
   DSI_SOURCE_OF_INFECTION_URL,
+  CTP_US_STATES_URL,
 } = require("./urls");
 
 const main = async () => {
   // Fetch all data
-  const johnsHopkinsParsed = await getAndParseUrl(JOHNS_HOPKINS_DATA_URL);
+  const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
-    ORIGINAL_JOHNS_HOPKINS_DEATHS_URL
+    JOHNS_HOPKINS_DEATHS_URL
   );
   const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
-    ORIGINAL_JOHNS_HOPKINS_RECOVERIES_URL
+    JOHNS_HOPKINS_RECOVERIES_URL
   );
-  const parsedWho = await getAndParseUrl(ORIGINAL_WHO_DATA_URL);
-  const parsedEcdc = await getAndParseUrl(ORIGINAL_ECDC_DATA_URL);
+  const parsedWho = await getAndParseUrl(WHO_DATA_URL);
+  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL);
+  const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
 
   // Format Johns Hopkins data
-  const formattedData = format(johnsHopkinsParsed.data);
-  const formatedJohnsHopkinsDeathsData = format(johnsHopkinsDeathsParsed.data);
-  const formatedJohnsHopkinsRecoveriesData = format(
+  const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
+    johnsHopkinsCasesParsed.data
+  );
+  const formattedJohnsHopkinsDeathsData = formatJohnsHopkins(
+    johnsHopkinsDeathsParsed.data
+  );
+  const formattedJohnsHopkinsRecoveriesData = formatJohnsHopkins(
     johnsHopkinsRecoveriesParsed.data
   );
 
+  // Format CTP US states data
+  const formattedCtpUsStatesData = formatCtpUsStates(parsedCtpUsStates.data);
+
   // Object containing all the regions that are part of countries
-  const formattedRegions = getRegions({
-    cases: formattedData,
-    deaths: formatedJohnsHopkinsDeathsData,
-    recoveries: formatedJohnsHopkinsRecoveriesData,
-  });
+  const formattedRegions = {
+    ...getJohnsHopkinsRegions({
+      cases: formattedJohnsHopkinsCasesData,
+      deaths: formattedJohnsHopkinsDeathsData,
+      recoveries: formattedJohnsHopkinsRecoveriesData,
+    }),
+    ...formattedCtpUsStatesData,
+  };
 
   // Combine Johns Hopkins states into countries and reformat
-  const countryTotals = getCountryTotals(formattedData);
-  const after100 = getAfter100(countryTotals);
+  const johnsHopkinsCasesCountryTotals = getCountryTotals(
+    formattedJohnsHopkinsCasesData
+  );
+  const johnsHopkinsAfter100 = getAfter100(johnsHopkinsCasesCountryTotals);
 
   const johnsHopkinsDeathsCountryTotals = getCountryTotals(
-    formatedJohnsHopkinsDeathsData
+    formattedJohnsHopkinsDeathsData
   );
   const johnsHopkinsRecoveriesCountryTotals = getCountryTotals(
-    formatedJohnsHopkinsRecoveriesData
+    formattedJohnsHopkinsRecoveriesData
   );
 
   // Format WHO data
-  const whoCountryTotals = formatWho(parsedWho.data);
+  const whoCountryTotals = formatWhoOrEcdc(parsedWho.data);
   const whoAfter100 = getAfter100(whoCountryTotals);
 
   // Format ECDC data
-  const ecdcCountryTotals = formatWho(parsedEcdc.data);
+  const ecdcCountryTotals = formatWhoOrEcdc(parsedEcdc.data);
   const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
   // Combining Johns Hopkins + DSI + some ECDC
   const hybridData = colectHybridData(
-    countryTotals,
+    johnsHopkinsCasesCountryTotals,
     dsiFormatted,
     ecdcCountryTotals
   );
@@ -130,7 +147,7 @@ const main = async () => {
   for (let day in hybridData.Australia) {
     finalHybridDate = day;
   }
-  for (let day in countryTotals.Australia) {
+  for (let day in johnsHopkinsCasesCountryTotals.Australia) {
     finalJohnsHopkinsDate = day;
   }
 
@@ -186,13 +203,13 @@ const main = async () => {
   console.log("Cleaning tmp directory...");
 
   // Write full data
-  writeTempJSON("data", formattedData);
+  writeTempJSON("data", formattedJohnsHopkinsCasesData);
 
   // Write country totals
-  writeTempJSON("country-totals", countryTotals);
+  writeTempJSON("country-totals", johnsHopkinsCasesCountryTotals);
 
   // Write country totals after 100
-  writeTempJSON("after-100-cases", after100);
+  writeTempJSON("after-100-cases", johnsHopkinsAfter100);
 
   // Write WHO data
   writeTempJSON("who-country-totals", whoCountryTotals);
@@ -221,7 +238,7 @@ const main = async () => {
   if (argv.timestamp) {
     writeTempJSON(
       `data${dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]")}`,
-      formattedData
+      formattedJohnsHopkinsCasesData
     );
   }
 
