@@ -1,26 +1,22 @@
-COVID-19 Data Import Function
-=============================
+# COVID-19 Data Import Function
 
 A NodeJS app that grabs COVID-19 data and uploads it to FTP.
 
 _Note: Will only work within ABC network_
 
-Usage
------
+## Usage
 
 Clone this repo. Make a `secret.json` in `src` dir and fill in details.
 
 Run `npm start` or `node src/index.js` to fetch, parse, and deploy to FTP.
 
-Run `node src/index.js --timestamp` to also deploy a timestamped data file. 
+Run `node src/index.js --timestamp` to also deploy a timestamped data file.
 
-Schedule
---------
+## Schedule
 
 Use **cron** to schedule script executions.
 
-Data URLs
----------
+## Data URLs
 
 Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
 
@@ -39,3 +35,5 @@ ECDC after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-a
 ABC hybrid country totals: https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-country-totals.json
 
 ABC hybrid after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json
+
+ABC places (countries & states) totals (cases, deaths, recoveries): https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json
