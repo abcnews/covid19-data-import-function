@@ -18,7 +18,7 @@ Use **cron** to schedule script executions.
 
 ## Data URLs
 
-Combined data files have become too large and will soon be depricated.
+Combined data files have become too large and will soon be deprecated.
 
 Please use this lookup file and fetch individual place data separately from now on.
 
