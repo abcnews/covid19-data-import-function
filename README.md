@@ -18,22 +18,9 @@ Use **cron** to schedule script executions.
 
 ## Data URLs
 
-Data should be available at: https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
+Combined data files have become too large and will soon be depricated.
 
-Also https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json
+Please use this lookup file and fetch individual place data separately from now on.
 
-And https://www.abc.net.au/dat/news/interactives/covid19-data/after-100-cases.json
-
-WHO country totals: https://www.abc.net.au/dat/news/interactives/covid19-data/who-country-totals.json
-
-WHO after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/who-after-100-cases.json
-
-ECDC country totals: https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-country-totals.json
-
-ECDC after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-after-100-cases.json
-
-ABC hybrid country totals: https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-country-totals.json
-
-ABC hybrid after 100: https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json
-
-ABC places (countries & states) totals (cases, deaths, recoveries): https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json
+Lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json
+Example for United States: https://www.abc.net.au/dat/news/interactives/covid19-data/places/us.json
