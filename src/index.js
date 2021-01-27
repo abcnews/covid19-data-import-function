@@ -282,6 +282,17 @@ const main = async () => {
     fs.mkdirSync(tempPlacesPath, { recursive: true });
   }
 
+  let lookupKey = {};
+
+  // Create a place lookup key
+  // Object.entries(placesTotals).map((entry) => {
+  //   const [key, value] = entry;
+
+  //   lookupKey[key] = {};
+  // });
+
+  // console.log(lookupKey);
+
   for (const placeName in placesTotals) {
     const individualPlace = { name: placeName, ...placesTotals[placeName] };
     const slugifiedPlaceName = slugify(placeName, {
@@ -290,8 +301,15 @@ const main = async () => {
       lower: true, // convert to lower case, defaults to `false`
       strict: true, // strip special characters except replacement, defaults to `false`
     });
+
     writeTempJSON(`places/${slugifiedPlaceName}`, individualPlace);
+
+    // Add to lookup file name
+    lookupKey[placeName] = `${slugifiedPlaceName}.json`;
   }
+
+  writeTempJSON(`places-lookup`, lookupKey);
+  // console.log(lookupKey);
 
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
@@ -343,40 +361,44 @@ const main = async () => {
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
 
-    console.log(`Johns Hopkins data:
-https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
-Also:
-https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json
-And:
-https://www.abc.net.au/dat/news/interactives/covid19-data/after-100-cases.json
+    //     console.log(`Johns Hopkins data:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
+    // Also:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json
+    // And:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/after-100-cases.json
 
-WHO country totals:
-https://www.abc.net.au/dat/news/interactives/covid19-data/who-country-totals.json
-WHO after 100:
-https://www.abc.net.au/dat/news/interactives/covid19-data/who-after-100-cases.json
+    // WHO country totals:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/who-country-totals.json
+    // WHO after 100:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/who-after-100-cases.json
 
-ECDC country totals:
-https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-country-totals.json
-ECDC after 100:
-https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-after-100-cases.json
+    // ECDC country totals:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-country-totals.json
+    // ECDC after 100:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-after-100-cases.json
 
-ABC hybrid country totals:
-https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-country-totals.json
-ABC hybrid after 100:
-https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json
+    // ABC hybrid country totals:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-country-totals.json
+    // ABC hybrid after 100:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json
 
-ABC hybrid extra data (deaths etc.):
-https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals-extra.json
+    // ABC hybrid extra data (deaths etc.):
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals-extra.json
 
-Combined data with deaths and recovered and regions etc:
-https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json
+    // Combined data with deaths and recovered and regions etc:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json
 
-DSI source of infection data:
-https://www.abc.net.au/dat/news/interactives/covid19-data/dsi-local-acquisition.json
+    // DSI source of infection data:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/dsi-local-acquisition.json
 
-Individual places also available at eg:
-https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json
-Just change the filename to the place you want (slugified) eg. new-zealand.json`);
+    // Individual places also available at eg:
+    // https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json
+    // Just change the filename to the place you want (slugified) eg. new-zealand.json`);
+
+    console.log(
+      "All data files except https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json will be depricated soon..."
+    );
   }
 
   console.log(
