@@ -16,12 +16,15 @@ const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 
+// Get local FTP userpass
 const credentials = require("./secret.json");
+
 const {
   formatJohnsHopkins,
   formatWhoOrEcdc,
   formatCtpUsStates,
-} = require("./format");
+} = require("./lib/format");
+
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
 const getAndParseUrl = require("./getAndParseUrl");
@@ -55,9 +58,30 @@ let isHybridUpdatable = true;
 
 const startTime = dayjs();
 
-console.log(`##########################################
-WELCOME TO THE COVID-19 DATA PIPELINE TOOL
-##########################################
+console.log(`########################################################################
+_______  _______  __   __  ___   ______                               
+|       ||       ||  | |  ||   | |      |                              
+|       ||   _   ||  |_|  ||   | |  _    |                             
+|       ||  | |  ||       ||   | | | |   |                             
+|      _||  |_|  ||       ||   | | |_|   |                             
+|     |_ |       | |     | |   | |       |                             
+|_______||_______|  |___|  |___| |______|                              
+ ______   _______  _______  _______                                    
+|      | |   _   ||       ||   _   |                                   
+|  _    ||  |_|  ||_     _||  |_|  |                                   
+| | |   ||       |  |   |  |       |                                   
+| |_|   ||       |  |   |  |       |                                   
+|       ||   _   |  |   |  |   _   |                                   
+|______| |__| |__|  |___|  |__| |__|                                   
+ ___   __   __  _______  _______  ______    _______  _______  ______   
+|   | |  |_|  ||       ||       ||    _ |  |       ||       ||    _ |  
+|   | |       ||    _  ||   _   ||   | ||  |_     _||    ___||   | ||  
+|   | |       ||   |_| ||  | |  ||   |_||_   |   |  |   |___ |   |_||_ 
+|   | |       ||    ___||  |_|  ||    __  |  |   |  |    ___||    __  |
+|   | | ||_|| ||   |    |       ||   |  | |  |   |  |   |___ |   |  | |
+|___| |_|   |_||___|    |_______||___|  |_|  |___|  |_______||___|  |_|
+
+########################################################################
 The time is: ${startTime.format()}`);
 
 const {
