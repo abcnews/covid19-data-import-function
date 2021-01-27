@@ -1,3 +1,10 @@
+/**
+ * Welcome to the COVID-19 Data Import Tool
+ * A nodejs script that gets data and uploads it to
+ * the ABC FTP server.
+ * It runs currently hourly on newsdev3.
+ */
+
 const to = require("await-to-js").default;
 const fs = require("fs");
 const path = require("path");
@@ -244,10 +251,11 @@ const main = async () => {
   writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
 
   // Write Hybrid data to disk, only if AUS 1 day ahead
+  // TODO: Make this the source of truth
   if (isHybridUpdatable) {
     writeTempJSON("hybrid-country-totals", hybridData);
     writeTempJSON("hybrid-after-100-cases", hybridAfter100);
-    writeTempJSON("places-totals", placesTotals);
+    writeTempJSON("places-totals", placesTotals); // <-------
   }
 
   // Write countries total with deaths etc
@@ -380,44 +388,3 @@ Just change the filename to the place you want (slugified) eg. new-zealand.json`
 
 // Run main async function
 main();
-
-// Helper functions
-function sortKeys(unsortedObject) {
-  sortedObject = {};
-
-  Object.keys(unsortedObject)
-    .sort()
-    .forEach(function (key) {
-      sortedObject[key] = unsortedObject[key];
-    });
-
-  return sortedObject;
-}
-
-// OLD CODE
-
-// // Bump back each day 1 day
-// for (let day in hybridData.Australia) {
-//   const theDayBefore = dayjs(day)
-//     .subtract(1, "day")
-//     .format("YYYY-MM-DD");
-//   hybridData.Australia[theDayBefore] = hybridData.Australia[day];
-// }
-// // Delete bumped up day
-// delete hybridData.Australia["2020-01-21"];
-
-// Make sure Johns Hopkins and DSI data line up days
-// if (
-//   dayjs(finalHybridDate)
-//     .subtract(1, "day")
-//     .isSame(dayjs(finalJohnsHopkinsDate), "day")
-// ) {
-//   console.log("Australia DSI data is 1 day ahead. We are go for update...");
-//   isHybridUpdatable = true;
-
-//   // Delete latest date (probably incomplete)
-//   delete hybridData.Australia[finalHybridDate];
-
-//   // Sort Hybrid data keys for added days (YES AGAIN)
-//   hybridData.Australia = sortKeys(hybridData.Australia);
-// }
