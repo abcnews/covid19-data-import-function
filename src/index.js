@@ -2,7 +2,7 @@
  * Welcome to the COVID-19 Data Import Tool
  * A nodejs script that gets data and uploads it to
  * the ABC FTP server.
- * It runs currently hourly on newsdev3.
+ * It runs currently hourly on http://newsdev3/
  */
 
 const to = require("await-to-js").default;
