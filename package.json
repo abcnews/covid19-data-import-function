@@ -1,6 +1,6 @@
 {
   "name": "covid19-data-import-function",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Import data about COVID-19",
   "main": "src/index.js",
   "scripts": {
