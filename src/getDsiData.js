@@ -2,7 +2,7 @@ const dayjs = require("dayjs");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const getAndParseUrl = require("./getAndParseUrl");
+const { getAndParseUrl } = require("./getAndParseUrl");
 
 const getDsiData = async dataUrl => {
   const parsedDsi = await getAndParseUrl(dataUrl);
