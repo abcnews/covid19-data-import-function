@@ -22,6 +22,7 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
+const getIntlVacciationsData = require("./vaccinations/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
@@ -34,7 +35,7 @@ const {
 
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
-const getAndParseUrl = require("./getAndParseUrl");
+const { getAndParseUrl, getUrl } = require("./getAndParseUrl");
 const getDsiData = require("./getDsiData");
 const colectHybridData = require("./collectHybridData");
 const getHybridExtra = require("./getHybridExtra");
@@ -58,6 +59,19 @@ function writeTempJSON(name, jsonOrObject) {
   );
 
   console.log(`Temporary data written to ${name}.json`);
+}
+
+function writeTempCSV(name, string) {
+  if (!fs.existsSync(TEMP_PATH)) {
+    fs.mkdirSync(TEMP_PATH, { recursive: true });
+  }
+
+  fs.writeFileSync(
+    path.join(TEMP_PATH, `${name}.csv`),
+    string
+  );
+
+  console.log(`Temporary data written to ${name}.csv`);
 }
 
 // TODO: this isn't needed any more I think (check)
@@ -115,6 +129,11 @@ const main = async () => {
   const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL);
   const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
+
+
+  // international vaccinations data
+  const { intlVaccinations, intlVaccinationsCountriesLatest, intlVaccinesUsage } = await getIntlVacciationsData();
+
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -263,6 +282,16 @@ const main = async () => {
 
   // Write countries total with deaths etc
   writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
+
+  if (intlVaccinations) {
+    writeTempCSV("intl-vaccinations", intlVaccinations);
+  }
+  if (intlVaccinationsCountriesLatest) {
+    writeTempCSV("intl-vaccinations-latest", intlVaccinationsCountriesLatest);
+  }
+  if (intlVaccinesUsage) {
+    writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
+  }
 
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp

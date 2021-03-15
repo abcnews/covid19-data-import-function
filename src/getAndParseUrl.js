@@ -38,7 +38,28 @@ const getAndParseUrl = async (url) => {
   return parsed;
 };
 
-module.exports = getAndParseUrl;
+const getUrl = async (url) => {
+  // Fetch John Hopkins data
+  const [fetchErr, fetchResponse] = await to(
+    axiosInstance({
+      method: "get",
+      url: url,
+    })
+  );
+
+  // Catch fetch errors
+  if (fetchErr) {
+    console.error("Fetch error...", fetchErr);
+    return false;
+  } else {
+    console.log("File fetched:", getUrlFileName(url));
+  }
+
+  return fetchResponse.data;
+};
+
+module.exports.getAndParseUrl = getAndParseUrl;
+module.exports.getUrl = getUrl;
 
 function getUrlFileName(url) {
   return url.substring(url.lastIndexOf('/')+1);

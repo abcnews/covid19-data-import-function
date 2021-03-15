@@ -19,3 +19,9 @@ exports.DSI_DATA_URL =
 
 exports.DSI_SOURCE_OF_INFECTION_URL =
   "https://covid-sheets-mirror.web.app/api?sheet=1nUUU5zPRPlhAXM_-8R7lsMnAkK4jaebvIL5agAaKoXk&range=Source%20of%20infection!A:D";
+
+  exports.INTERNATIONAL_VACCINATIONS =
+  "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv";
+
+  exports.INTERNATIONAL_VACCINES_USAGE =
+  "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/locations.csv";
