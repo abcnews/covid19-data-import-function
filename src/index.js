@@ -251,15 +251,27 @@ const main = async () => {
   // Format global data
   const formattedJohnsHopkinsGlobal = { name: "Global", type: "aggregate" };
 
-  formattedJohnsHopkinsGlobal.dates = johnsHopkinsGlobal.data.map(
-    (dateData) => ({
-      [dateData.Date]: {
-        cases: dateData.Confirmed,
-        deaths: dateData.Deaths,
-        recoveries: dateData.Recovered,
-      },
-    })
-  );
+  const globalDates = {};
+
+  for (const dateData of johnsHopkinsGlobal.data) {
+    globalDates[dateData.Date] = {
+      cases: dateData.Confirmed,
+      deaths: dateData.Deaths,
+      recoveries: dateData.Recovered,
+    };
+  }
+
+  formattedJohnsHopkinsGlobal.dates = globalDates;
+
+  // johnsHopkinsGlobal.data.map(
+  //   (dateData) => ({
+  //     [dateData.Date]: {
+  //       cases: dateData.Confirmed,
+  //       deaths: dateData.Deaths,
+  //       recoveries: dateData.Recovered,
+  //     },
+  //   })
+  // );
 
   // Write files to temporary directory
   // Clear dir
@@ -341,6 +353,9 @@ const main = async () => {
     // Add to lookup file name
     lookupKey[placeName] = `${slugifiedPlaceName}.json`;
   }
+
+  // Add Global to lookup key
+  lookupKey.Global = "global.json"
 
   writeTempJSON(`places-lookup`, lookupKey);
 
