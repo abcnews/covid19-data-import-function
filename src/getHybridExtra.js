@@ -1,8 +1,5 @@
-
-
 const getHybridExtra = (dataObject) => {
-const {originalData, deaths, recoveries} = dataObject
-
+  const { originalData, deaths, recoveries } = dataObject;
 
   const hybridExtra = {};
 
@@ -22,8 +19,7 @@ const {originalData, deaths, recoveries} = dataObject
     if (country === "undefined") continue;
 
     for (const date in deaths[country]) {
-      hybridExtra[country][date]["deaths"] =
-      deaths[country][date];
+      hybridExtra[country][date]["deaths"] = deaths[country][date];
     }
   }
 
@@ -32,8 +28,7 @@ const {originalData, deaths, recoveries} = dataObject
     if (country === "undefined") continue;
 
     for (const date in recoveries[country]) {
-      hybridExtra[country][date]["recoveries"] =
-      recoveries[country][date];
+      hybridExtra[country][date]["recoveries"] = recoveries[country][date];
     }
   }
 

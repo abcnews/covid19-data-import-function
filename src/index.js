@@ -66,10 +66,7 @@ function writeTempCSV(name, string) {
     fs.mkdirSync(TEMP_PATH, { recursive: true });
   }
 
-  fs.writeFileSync(
-    path.join(TEMP_PATH, `${name}.csv`),
-    string
-  );
+  fs.writeFileSync(path.join(TEMP_PATH, `${name}.csv`), string);
 
   console.log(`Temporary data written to ${name}.csv`);
 }
@@ -114,6 +111,7 @@ const {
   DSI_DATA_URL,
   DSI_SOURCE_OF_INFECTION_URL,
   CTP_US_STATES_URL,
+  JOHNS_HOPKINS_GLOBAL_URL,
 } = require("./urls");
 
 const main = async () => {
@@ -129,11 +127,14 @@ const main = async () => {
   const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL);
   const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
-
+  const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
   // international vaccinations data
-  const { intlVaccinations, intlVaccinationsCountriesLatest, intlVaccinesUsage } = await getIntlVacciationsData();
-
+  const {
+    intlVaccinations,
+    intlVaccinationsCountriesLatest,
+    intlVaccinesUsage,
+  } = await getIntlVacciationsData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -247,6 +248,19 @@ const main = async () => {
     dsiSourceOfInfection.data
   );
 
+  // Format global data
+  const formattedJohnsHopkinsGlobal = { name: "Global", type: "aggregate" };
+
+  formattedJohnsHopkinsGlobal.dates = johnsHopkinsGlobal.data.map(
+    (dateData) => ({
+      [dateData.Date]: {
+        cases: dateData.Confirmed,
+        deaths: dateData.Deaths,
+        recoveries: dateData.Recovered,
+      },
+    })
+  );
+
   // Write files to temporary directory
   // Clear dir
   rimraf.sync(TEMP_PATH);
@@ -313,15 +327,6 @@ const main = async () => {
 
   let lookupKey = {};
 
-  // Create a place lookup key
-  // Object.entries(placesTotals).map((entry) => {
-  //   const [key, value] = entry;
-
-  //   lookupKey[key] = {};
-  // });
-
-  // console.log(lookupKey);
-
   for (const placeName in placesTotals) {
     const individualPlace = { name: placeName, ...placesTotals[placeName] };
     const slugifiedPlaceName = slugify(placeName, {
@@ -338,7 +343,9 @@ const main = async () => {
   }
 
   writeTempJSON(`places-lookup`, lookupKey);
-  // console.log(lookupKey);
+
+  // Write global data
+  writeTempJSON(`places/global`, formattedJohnsHopkinsGlobal);
 
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor

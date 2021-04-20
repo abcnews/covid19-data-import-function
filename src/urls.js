@@ -7,6 +7,8 @@ exports.JOHNS_HOPKINS_DEATHS_URL =
 exports.JOHNS_HOPKINS_RECOVERIES_URL =
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
 
+exports.JOHNS_HOPKINS_GLOBAL_URL = "https://raw.githubusercontent.com/datasets/covid-19/main/data/worldwide-aggregate.csv"
+
 exports.WHO_DATA_URL = "https://covid.ourworldindata.org/data/full_data.csv";
 
 exports.ECDC_DATA_URL =
