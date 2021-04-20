@@ -124,7 +124,7 @@ const main = async () => {
     JOHNS_HOPKINS_RECOVERIES_URL
   );
   const parsedWho = await getAndParseUrl(WHO_DATA_URL);
-  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL);
+  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
   const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
   const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
@@ -355,7 +355,9 @@ const main = async () => {
   }
 
   // Add Global to lookup key
-  lookupKey.Global = "global.json"
+  lookupKey.Global = "global.json";
+
+  console.log(lookupKey);
 
   writeTempJSON(`places-lookup`, lookupKey);
 
