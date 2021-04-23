@@ -357,8 +357,6 @@ const main = async () => {
   // Add Global to lookup key
   lookupKey.Global = "global.json";
 
-  console.log(lookupKey);
-
   writeTempJSON(`places-lookup`, lookupKey);
 
   // Write global data
