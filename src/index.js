@@ -23,6 +23,7 @@ const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 const getIntlVacciationsData = require("./vaccinations/index.js");
+const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
@@ -135,6 +136,9 @@ const main = async () => {
     intlVaccinationsCountriesLatest,
     intlVaccinesUsage,
   } = await getIntlVacciationsData();
+
+  // vic exposure sites data
+  const { vicExposureSites } = await getVicExposureSitesData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -317,6 +321,10 @@ const main = async () => {
   }
   if (intlVaccinesUsage) {
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
+  }
+
+  if (vicExposureSites) {
+    writeTempCSV("vic-exposure-sites", vicExposureSites);
   }
 
   // Also upload timestamped data with --timestamp argument
