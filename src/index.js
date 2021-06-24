@@ -24,7 +24,7 @@ const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 const getIntlVacciationsData = require("./vaccinations/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
-const getNSWExposureSiteData = require("./nsw-exposure-sites");
+const getNSWExposureSiteData = require("./nsw-exposure-sites/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
