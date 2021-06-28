@@ -24,7 +24,8 @@ const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 const getIntlVacciationsData = require("./vaccinations/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
-const getNSWExposureSiteData = require("./nsw-exposure-sites/index.js");
+const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
+const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
@@ -142,7 +143,10 @@ const main = async () => {
   const { vicExposureSites } = await getVicExposureSitesData();
 
   // NSW exposure site data
-  const { nswExposureSites } = await getNSWExposureSiteData();
+  const { nswExposureSites } = await getNSWExposureSitesData();
+
+  //QLD exposure site data
+  const {qldExposureSites} = await getQLDExposureSitesData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -333,6 +337,10 @@ const main = async () => {
 
   if(nswExposureSites){
     writeTempJSON("nsw-exposure-sites",nswExposureSites);
+  }
+
+  if(qldExposureSites){
+    writeTempCSV("qld-exposure-sites",qldExposureSites);
   }
 
   // Also upload timestamped data with --timestamp argument
