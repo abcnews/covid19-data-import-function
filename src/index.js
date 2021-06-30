@@ -23,9 +23,11 @@ const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
 const getIntlVacciationsData = require("./vaccinations/index.js");
-const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
+
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
+const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
+const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
@@ -147,6 +149,10 @@ const main = async () => {
 
   //QLD exposure site data
   const {qldExposureSites} = await getQLDExposureSitesData();
+
+  //WA exposre site data
+  const {waExposureSites} = await getWAExposureSitesData();
+
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -341,6 +347,10 @@ const main = async () => {
 
   if(qldExposureSites){
     writeTempCSV("qld-exposure-sites",qldExposureSites);
+  }
+
+  if(waExposureSites){
+    writeTempCSV("wa-exposure-sites",waExposureSites);
   }
 
   // Also upload timestamped data with --timestamp argument
