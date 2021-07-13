@@ -22,7 +22,7 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
-const getIntlVacciationsData = require("./vaccinations/index.js");
+const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
 
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
@@ -121,25 +121,32 @@ const {
 
 const main = async () => {
   // Fetch all data
-  const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
-  const johnsHopkinsDeathsParsed = await getAndParseUrl(
-    JOHNS_HOPKINS_DEATHS_URL
-  );
-  const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
-    JOHNS_HOPKINS_RECOVERIES_URL
-  );
-  const parsedWho = await getAndParseUrl(WHO_DATA_URL);
-  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
-  const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
-  const dsiFormatted = await getDsiData(DSI_DATA_URL);
-  const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
+  // const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
+  // const johnsHopkinsDeathsParsed = await getAndParseUrl(
+  //   JOHNS_HOPKINS_DEATHS_URL
+  // );
+  // const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
+  //   JOHNS_HOPKINS_RECOVERIES_URL
+  // );
+  // const parsedWho = await getAndParseUrl(WHO_DATA_URL);
+  // const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
+  // const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
+  // const dsiFormatted = await getDsiData(DSI_DATA_URL);
+  // const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
+  // aus vaccinations data
+  const { ausVaccinationsByAdministration } = await getAusVaccinationsData();
+  if (ausVaccinationsByAdministration) {
+    writeTempCSV("aus-vaccinations-by-administration", ausVaccinationsByAdministration);
+  }
+
+  return;
   // international vaccinations data
   const {
     intlVaccinations,
     intlVaccinationsCountriesLatest,
     intlVaccinesUsage,
-  } = await getIntlVacciationsData();
+  } = await getIntlVaccinationsData();
 
   // vic exposure sites data
   const { vicExposureSites } = await getVicExposureSitesData();
