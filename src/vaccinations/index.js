@@ -125,7 +125,6 @@ function getAusVaccinationsData() {
         res[1].data
       );
 
-      // console.log(ausVaccinationsByAdministration)
       return {
         ausVaccinationsByAdministration: Papa.unparse(ausVaccinationsByAdministration),
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
