@@ -151,7 +151,7 @@ function parseDataByAdministration(data) {
     let date = addDays(new Date(entry["DATE_AS_AT"]), 1);
 
     if (date < new Date('2021/07/13')) {
-      // a static csv is used for data before 2021/07/12
+      // a static csv is used for data before 2021/07/13
       return;
     }
     date = format(date, 'yyyy/MM/dd');
@@ -187,7 +187,6 @@ function parseDataByAdministration(data) {
 
 
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'CWTH_AGED_CARE',
       total: entry["TOTALS_CWTH_AGED_CARE_TOTAL"],
@@ -199,63 +198,54 @@ function parseDataByAdministration(data) {
     });
 
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'CWTH_PRIMARY_CARE',
       total: entry["TOTALS_CWTH_PRIMARY_CARE_TOTAL"],
       daily: entry["TOTALS_CWTH_PRIMARY_CARE_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_ACT',
       total: entry["STATE_CLINICS_ACT_TOTAL"],
       daily: entry["STATE_CLINICS_ACT_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_NT',
       total: entry["STATE_CLINICS_NT_TOTAL"],
       daily: entry["STATE_CLINICS_NT_LAST_24HR"],
     });
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_NSW',
       total: entry["STATE_CLINICS_NSW_TOTAL"],
       daily: entry["STATE_CLINICS_NSW_LAST_24HR"],
     });
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_SA',
       total: entry["STATE_CLINICS_SA_TOTAL"],
       daily: entry["STATE_CLINICS_SA_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_TAS',
       total: entry["STATE_CLINICS_TAS_TOTAL"],
       daily: entry["STATE_CLINICS_TAS_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_VIC',
       total: entry["STATE_CLINICS_VIC_TOTAL"],
       daily: entry["STATE_CLINICS_VIC_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_QLD',
       total: entry["STATE_CLINICS_QLD_TOTAL"],
       daily: entry["STATE_CLINICS_QLD_LAST_24HR"],
     })
     array.push({
-      // we use date reported instead of date as at, so add one day to the set as date
       date,
       place: 'STATE_WA',
       total: entry["STATE_CLINICS_WA_TOTAL"],
