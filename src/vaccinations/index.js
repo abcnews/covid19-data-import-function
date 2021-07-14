@@ -127,7 +127,7 @@ function getAusVaccinationsData() {
 
       return {
         ausVaccinationsByAdministration: Papa.unparse(ausVaccinationsByAdministration),
-        ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
+        x: Papa.unparse(ausDosesBreakdown),
       };
     })
 
@@ -135,6 +135,7 @@ function getAusVaccinationsData() {
       console.log(e);
       return {
         ausVaccinationsByAdministration: undefined,
+        getVaccinationsData: undefined,
       };
     });
 }
