@@ -121,26 +121,22 @@ const {
 
 const main = async () => {
   // Fetch all data
-  // const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
-  // const johnsHopkinsDeathsParsed = await getAndParseUrl(
-  //   JOHNS_HOPKINS_DEATHS_URL
-  // );
-  // const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
-  //   JOHNS_HOPKINS_RECOVERIES_URL
-  // );
-  // const parsedWho = await getAndParseUrl(WHO_DATA_URL);
-  // const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
-  // const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
-  // const dsiFormatted = await getDsiData(DSI_DATA_URL);
-  // const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
+  const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
+  const johnsHopkinsDeathsParsed = await getAndParseUrl(
+    JOHNS_HOPKINS_DEATHS_URL
+  );
+  const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
+    JOHNS_HOPKINS_RECOVERIES_URL
+  );
+  const parsedWho = await getAndParseUrl(WHO_DATA_URL);
+  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
+  const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
+  const dsiFormatted = await getDsiData(DSI_DATA_URL);
+  const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
   // aus vaccinations data
-  const { ausVaccinationsByAdministration } = await getAusVaccinationsData();
-  if (ausVaccinationsByAdministration) {
-    writeTempCSV("aus-vaccinations-by-administration", ausVaccinationsByAdministration);
-  }
+  const { ausVaccinationsByAdministration, ausDosesBreakdown } = await getAusVaccinationsData();
 
-  return;
   // international vaccinations data
   const {
     intlVaccinations,
@@ -334,6 +330,14 @@ const main = async () => {
   // Write countries total with deaths etc
   writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
 
+  if (ausVaccinationsByAdministration) {
+    writeTempCSV("aus-vaccinations-by-administration", ausVaccinationsByAdministration);
+  }
+
+  if (ausDosesBreakdown) {
+    writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
+  }
+  
   if (intlVaccinations) {
     writeTempCSV("intl-vaccinations", intlVaccinations);
   }

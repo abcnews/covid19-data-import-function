@@ -276,7 +276,7 @@ function parseDosesBreakdownData(data) {
   const array = []
   data.forEach(entry => {
      // we use date reported instead of date as at, so add one day to the set as date
-     let date = addDays(new Date(entry["DATE_AS_AT"]), 1);
+     let date = format(addDays(new Date(entry["DATE_AS_AT"]), 1), 'yyyy/MM/dd');
 
     array.push({
       date,
@@ -351,4 +351,6 @@ function parseDosesBreakdownData(data) {
       totalSecondPct: entry["AIR_NT_16_PLUS_SECOND_DOSE_PCT"],
     });
   });
+
+  return array; 
 } 
