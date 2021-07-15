@@ -22,7 +22,7 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
-const getIntlVacciationsData = require("./vaccinations/index.js");
+const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
 
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
@@ -134,12 +134,15 @@ const main = async () => {
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
   const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
+  // aus vaccinations data
+  const { ausVaccinationsByAdministration, ausDosesBreakdown } = await getAusVaccinationsData();
+
   // international vaccinations data
   const {
     intlVaccinations,
     intlVaccinationsCountriesLatest,
     intlVaccinesUsage,
-  } = await getIntlVacciationsData();
+  } = await getIntlVaccinationsData();
 
   // vic exposure sites data
   const { vicExposureSites } = await getVicExposureSitesData();
@@ -327,6 +330,14 @@ const main = async () => {
   // Write countries total with deaths etc
   writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
 
+  if (ausVaccinationsByAdministration) {
+    writeTempCSV("aus-vaccinations-by-administration", ausVaccinationsByAdministration);
+  }
+
+  if (ausDosesBreakdown) {
+    writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
+  }
+  
   if (intlVaccinations) {
     writeTempCSV("intl-vaccinations", intlVaccinations);
   }

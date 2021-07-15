@@ -1,4 +1,5 @@
 const Papa = require("papaparse");
+const { format } = require('date-fns');
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
 const COUNTRIES = require("./countries");
@@ -7,7 +8,7 @@ const {
   INTERNATIONAL_VACCINES_USAGE,
 } = require("../urls");
 
-function getIntlVacciationsData() {
+function getIntlVaccinationsData() {
   return Promise.all([
     getAndParseUrl(INTERNATIONAL_VACCINATIONS),
     getUrl(INTERNATIONAL_VACCINES_USAGE),
@@ -36,7 +37,7 @@ function getIntlVacciationsData() {
     });
 }
 
-module.exports = getIntlVacciationsData;
+exports.getIntlVaccinationsData = getIntlVaccinationsData;
 
 function formatVaccinations(data) {
   const vaccinations = [];
@@ -107,3 +108,239 @@ function formatVaccinations(data) {
     countriesLatestValues: Object.values(countriesLatestValues),
   };
 }
+
+// uses data from https://github.com/jxeeno/aust-govt-covid19-vaccine-pdf
+function getAusVaccinationsData() {
+  return Promise.all([
+    getAndParseUrl('https://vaccinedata.covid19nearme.com.au/data/all.csv'),
+    getAndParseUrl('https://vaccinedata.covid19nearme.com.au/data/air.csv'),
+  ])
+    .then((res) => {
+
+      const ausVaccinationsByAdministration = parseDataByAdministration(
+        res[0].data
+      );
+
+      const ausDosesBreakdown = parseDosesBreakdownData(
+        res[1].data
+      );
+
+      return {
+        ausVaccinationsByAdministration: Papa.unparse(ausVaccinationsByAdministration),
+        ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
+      };
+    })
+
+    .catch((e) => {
+      console.log(e);
+      return {
+        ausVaccinationsByAdministration: undefined,
+        ausDosesBreakdown: undefined,
+      };
+    });
+}
+
+exports.getAusVaccinationsData = getAusVaccinationsData;
+
+function parseDataByAdministration(data) {
+  const array = []
+  let agedCarePrevDayFirst = 0;
+  let agedCarePrevDaySecond = 0;
+  data.forEach(entry => {
+
+    // we use date reported instead of date as at, so add one day to the set as date
+    let date = addDays(new Date(entry["DATE_AS_AT"]), 1);
+
+    if (date < new Date('2021/07/13')) {
+      // a static csv is used for data before 2021/07/13
+      return;
+    }
+    date = format(date, 'yyyy/MM/dd');
+
+    array.push({
+      date,
+      place: 'NATIONAL',
+      total: entry["TOTALS_NATIONAL_TOTAL"],
+      daily: entry["TOTALS_NATIONAL_LAST_24HR"],
+      totalFirst: undefined,
+      totalSecond: undefined,
+      dailyFirst: undefined,
+      dailySecond: undefined,
+    });
+
+    array.push({
+      date,
+      place: 'CWTH_ALL',
+      total: entry["TOTALS_CWTH_ALL_TOTAL"],
+      daily: entry["TOTALS_CWTH_ALL_LAST_24HR"],
+      totalFirst: undefined,
+      totalSecond: undefined,
+      dailyFirst: undefined,
+      dailySecond: undefined,
+    });
+
+    const totalFirst = entry["CWTH_AGED_CARE_DOSES_FIRST_DOSE"];
+    const totalSecond = entry["CWTH_AGED_CARE_DOSES_SECOND_DOSE"];
+    const agedCareDailyFirst = totalFirst - agedCarePrevDayFirst;
+    const agedCareDailySecond = totalSecond - agedCarePrevDaySecond;
+    agedCarePrevDayFirst = totalFirst;
+    agedCarePrevDaySecond = totalSecond;
+
+
+    array.push({
+      date,
+      place: 'CWTH_AGED_CARE',
+      total: entry["TOTALS_CWTH_AGED_CARE_TOTAL"],
+      daily: entry["TOTALS_CWTH_AGED_CARE_LAST_24HR"],
+      totalFirst,
+      totalSecond,
+      dailyFirst: agedCareDailyFirst,
+      dailySecond: agedCareDailySecond,
+    });
+
+    array.push({
+      date,
+      place: 'CWTH_PRIMARY_CARE',
+      total: entry["TOTALS_CWTH_PRIMARY_CARE_TOTAL"],
+      daily: entry["TOTALS_CWTH_PRIMARY_CARE_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_ACT',
+      total: entry["STATE_CLINICS_ACT_TOTAL"],
+      daily: entry["STATE_CLINICS_ACT_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_NT',
+      total: entry["STATE_CLINICS_NT_TOTAL"],
+      daily: entry["STATE_CLINICS_NT_LAST_24HR"],
+    });
+    array.push({
+      date,
+      place: 'STATE_NSW',
+      total: entry["STATE_CLINICS_NSW_TOTAL"],
+      daily: entry["STATE_CLINICS_NSW_LAST_24HR"],
+    });
+    array.push({
+      date,
+      place: 'STATE_SA',
+      total: entry["STATE_CLINICS_SA_TOTAL"],
+      daily: entry["STATE_CLINICS_SA_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_TAS',
+      total: entry["STATE_CLINICS_TAS_TOTAL"],
+      daily: entry["STATE_CLINICS_TAS_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_VIC',
+      total: entry["STATE_CLINICS_VIC_TOTAL"],
+      daily: entry["STATE_CLINICS_VIC_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_QLD',
+      total: entry["STATE_CLINICS_QLD_TOTAL"],
+      daily: entry["STATE_CLINICS_QLD_LAST_24HR"],
+    })
+    array.push({
+      date,
+      place: 'STATE_WA',
+      total: entry["STATE_CLINICS_WA_TOTAL"],
+      daily: entry["STATE_CLINICS_WA_LAST_24HR"],
+    })
+  });
+  return array;
+}
+
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function parseDosesBreakdownData(data) {
+  const array = []
+  data.forEach(entry => {
+     // we use date reported instead of date as at, so add one day to the set as date
+     let date = format(addDays(new Date(entry["DATE_AS_AT"]), 1), 'yyyy/MM/dd');
+
+    array.push({
+      date,
+      place: 'NATIONAL',
+      totalFirst: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'NSW',
+      totalFirst: entry["AIR_NSW_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_NSW_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_NSW_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_NSW_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'VIC',
+      totalFirst: entry["AIR_VIC_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_VIC_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_VIC_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_VIC_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'QLD',
+      totalFirst: entry["AIR_QLD_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_QLD_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_QLD_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_QLD_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'WA',
+      totalFirst: entry["AIR_WA_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_WA_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_WA_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_WA_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'TAS',
+      totalFirst: entry["AIR_TAS_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_TAS_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_TAS_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_TAS_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'SA',
+      totalFirst: entry["AIR_SA_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_SA_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_SA_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_SA_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'ACT',
+      totalFirst: entry["AIR_ACT_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_ACT_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_ACT_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_ACT_16_PLUS_SECOND_DOSE_PCT"],
+    });
+    array.push({
+      date,
+      place: 'NT',
+      totalFirst: entry["AIR_NT_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct: entry["AIR_NT_16_PLUS_FIRST_DOSE_PCT"],
+      totalSecond: entry["AIR_NT_16_PLUS_SECOND_DOSE_COUNT"],
+      totalSecondPct: entry["AIR_NT_16_PLUS_SECOND_DOSE_PCT"],
+    });
+  });
+
+  return array; 
+} 
