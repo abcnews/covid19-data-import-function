@@ -26,6 +26,7 @@ const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinatio
 
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
+const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 
@@ -152,6 +153,9 @@ const main = async () => {
 
   //QLD exposure site data
   const {qldExposureSites} = await getQLDExposureSitesData();
+
+  //SA Exposure Site data
+  const {saExposureSites} = await getSAExposureSitesData();
 
   //WA exposre site data
   const {waExposureSites} = await getWAExposureSitesData();
@@ -345,6 +349,7 @@ const main = async () => {
     writeTempCSV("intl-vaccinations-latest", intlVaccinationsCountriesLatest);
   }
   if (intlVaccinesUsage) {
+    console.log(intlVaccinesUsage);
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
   }
 
@@ -358,6 +363,10 @@ const main = async () => {
 
   if(qldExposureSites){
     writeTempCSV("qld-exposure-sites",qldExposureSites);
+  }
+
+  if(saExposureSites){
+    writeTempCSV("sa-exposure-sites",saExposureSites);
   }
 
   if(waExposureSites){
