@@ -10,7 +10,7 @@ function getQLDExposureSitesData() {
   ])
     .then((res) => {
       return {
-        qldExposureSites: res,
+        qldExposureSites: Array.isArray(res) ? res[0] : res,
       };
     })
     .catch((e) => {

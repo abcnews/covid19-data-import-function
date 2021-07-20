@@ -9,7 +9,7 @@ function getVicExposureSitesData() {
   ])
     .then((res) => {
       return {
-        vicExposureSites: res,
+        vicExposureSites: Array.isArray(res) ? res[0] : res,
       };
     })
     .catch((e) => {

@@ -10,7 +10,7 @@ function getWAExposureSitesData() {
   ])
     .then((res) => {
       return {
-        waExposureSites: res,
+        waExposureSites: Array.isArray(res) ? res[0] : res,
       };
     })
     .catch((e) => {
