@@ -29,6 +29,7 @@ const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
+const getNSWCasesData = require("./nsw-cases/index.js");
 
 // Get local FTP userpass
 const credentials = require("./secret.json");
@@ -160,6 +161,7 @@ const main = async () => {
   //WA exposre site data
   const {waExposureSites} = await getWAExposureSitesData();
 
+  const { nswCases } = await getNSWCasesData()
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -373,6 +375,9 @@ const main = async () => {
     writeTempCSV("wa-exposure-sites",waExposureSites);
   }
 
+  if (nswCases) {
+    writeTempJSON("nsw-active-cases", nswCases);
+  }
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
