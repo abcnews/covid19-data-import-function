@@ -6,7 +6,9 @@ _Note: Will only work within ABC network_
 
 ## Usage
 
-Clone this repo. Make a `secret.json` in `src` dir and fill in details.
+Clone this repo.
+
+Make sure your `.abc-credentials` for `contentftp` is up to date.
 
 Run `npm start` or `node src/index.js` to fetch, parse, and deploy to FTP.
 
