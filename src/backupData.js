@@ -5,15 +5,17 @@ const ftp = new PromiseFtp();
 const { zip } = require("zip-a-folder");
 const dayjs = require("dayjs");
 const rimraf = require("rimraf");
+const findConfig = require("find-config");
 
-const credentials = require("./secret.json");
+const config = JSON.parse(findConfig.read(".abc-credentials"));
+const credentials = config.contentftp;
 
 // First clear current backups
 rimraf.sync("./backup/*");
 
 // Make sure backup and archive folders exist
 const backupDir = "./backup";
-const placesDir = "./backup/places"
+const placesDir = "./backup/places";
 const archiveDir = "./archive";
 
 makeDirIfNotExist(backupDir);
@@ -30,7 +32,7 @@ const backupData = async () => {
   // Some ftp credentials for backup purposes
   const connectionResponse = await ftp.connect({
     host: credentials.host,
-    user: credentials.user,
+    user: credentials.username,
     password: credentials.password,
   });
 

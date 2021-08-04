@@ -22,8 +22,10 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
-const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
+const findConfig = require('find-config');
 
+
+const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
@@ -31,8 +33,12 @@ const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 const getNSWCasesData = require("./nsw-cases/index.js");
 
-// Get local FTP userpass
-const credentials = require("./secret.json");
+// Setup some constants
+REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
+
+// Get FTP credentials from ~/.abc-credentials
+const config = JSON.parse(findConfig.read('.abc-credentials'));
+const credentials = config.contentftp;
 
 const {
   formatJohnsHopkins,
@@ -450,12 +456,12 @@ const main = async () => {
 
     const [ftpErr, ftpResponse] = await to(
       ftpDeploy.deploy({
-        user: credentials.user,
+        user: credentials.username,
         password: credentials.password,
         host: credentials.host,
         port: 21,
         localRoot: "./tmp",
-        remoteRoot: credentials.remoteRoot,
+        remoteRoot: REMOTE_ROOT,
         include: ["*"],
         exclude: [".*"],
         deleteRemote: false,
