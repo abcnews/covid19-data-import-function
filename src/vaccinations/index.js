@@ -2,6 +2,7 @@ const Papa = require("papaparse");
 const { format } = require('date-fns');
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
+const { getAusAgeBreakdownData } = require("./aus-age-breakdown")
 const COUNTRIES = require("./countries");
 const {
   INTERNATIONAL_VACCINATIONS,
@@ -114,6 +115,7 @@ function getAusVaccinationsData() {
   return Promise.all([
     getAndParseUrl('https://vaccinedata.covid19nearme.com.au/data/all.csv'),
     getAndParseUrl('https://vaccinedata.covid19nearme.com.au/data/air.csv'),
+    getAusAgeBreakdownData(),
   ])
     .then((res) => {
 
@@ -125,9 +127,12 @@ function getAusVaccinationsData() {
         res[1].data
       );
 
+      const ausAgeBreakdown = res[2];
+
       return {
         ausVaccinationsByAdministration: Papa.unparse(ausVaccinationsByAdministration),
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
+        ausAgeBreakdown,
       };
     })
 
@@ -136,6 +141,7 @@ function getAusVaccinationsData() {
       return {
         ausVaccinationsByAdministration: undefined,
         ausDosesBreakdown: undefined,
+        ausAgeBreakdown: undefined,
       };
     });
 }

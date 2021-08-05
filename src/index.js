@@ -143,7 +143,7 @@ const main = async () => {
   const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
   // aus vaccinations data
-  const { ausVaccinationsByAdministration, ausDosesBreakdown } = await getAusVaccinationsData();
+  const { ausVaccinationsByAdministration, ausDosesBreakdown, ausAgeBreakdown } = await getAusVaccinationsData();
 
   // international vaccinations data
   const {
@@ -349,7 +349,11 @@ const main = async () => {
   if (ausDosesBreakdown) {
     writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
   }
-  
+
+  if (ausAgeBreakdown) {
+    writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
+  }
+
   if (intlVaccinations) {
     writeTempCSV("intl-vaccinations", intlVaccinations);
   }
