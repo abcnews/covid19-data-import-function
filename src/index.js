@@ -152,19 +152,19 @@ const main = async () => {
     intlVaccinesUsage,
   } = await getIntlVaccinationsData();
 
-  // vic exposure sites data
+  // Vic exposure sites data
   const { vicExposureSites } = await getVicExposureSitesData();
 
   // NSW exposure site data
   const { nswExposureSites } = await getNSWExposureSitesData();
 
-  //QLD exposure site data
+  // QLD exposure site data
   const {qldExposureSites} = await getQLDExposureSitesData();
 
-  //SA Exposure Site data
+  // SA Exposure Site data
   const {saExposureSites} = await getSAExposureSitesData();
 
-  //WA exposre site data
+  // WA exposre site data
   const {waExposureSites} = await getWAExposureSitesData();
 
   const { nswCases } = await getNSWCasesData()
