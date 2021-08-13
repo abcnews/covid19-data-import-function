@@ -26,6 +26,7 @@ const findConfig = require('find-config');
 
 
 const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
+const getACTExposureSitesData = require("./act-exposure-sites/index.js");
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
@@ -151,6 +152,10 @@ const main = async () => {
     intlVaccinationsCountriesLatest,
     intlVaccinesUsage,
   } = await getIntlVaccinationsData();
+
+  //ACT exposure sites data
+  //getACTExposureSitesData
+  const { actExposureSites } = await getACTExposureSitesData();
 
   // Vic exposure sites data
   const { vicExposureSites } = await getVicExposureSitesData();
@@ -363,6 +368,10 @@ const main = async () => {
   if (intlVaccinesUsage) {
     console.log(intlVaccinesUsage);
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
+  }
+
+  if(actExposureSites){
+    writeTempCSV("act-exposure-sites",actExposureSites);
   }
 
   if (vicExposureSites) {
