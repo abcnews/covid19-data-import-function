@@ -154,7 +154,6 @@ const main = async () => {
   } = await getIntlVaccinationsData();
 
   //ACT exposure sites data
-  //getACTExposureSitesData
   const { actExposureSites } = await getACTExposureSitesData();
 
   // Vic exposure sites data
