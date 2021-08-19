@@ -370,7 +370,7 @@ const main = async () => {
   }
 
   if(actExposureSites){
-    writeTempCSV("act-exposure-sites",actExposureSites);
+    writeTempJSON("act-exposure-sites",actExposureSites);
   }
 
   if (vicExposureSites) {
