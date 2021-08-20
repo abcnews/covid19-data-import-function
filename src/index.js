@@ -32,7 +32,9 @@ const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
-const { getNSWCasesData, getNSWVaxData } = require("./nsw-covid/index.js");
+
+//NSW Case data
+const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
 
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
@@ -171,6 +173,9 @@ const main = async () => {
   // WA exposre site data
   const {waExposureSites} = await getWAExposureSitesData();
 
+  // NSW Case Data
+
+  const { nswCasesAnnouncements } = await getNSWCasesAnnouncements()
   const { nswCases } = await getNSWCasesData()
   const { nswVax } = await getNSWVaxData();
 
@@ -396,6 +401,10 @@ const main = async () => {
 
   if (nswCases) {
     writeTempJSON("nsw-active-cases", nswCases);
+  }
+
+  if (nswCasesAnnouncements) {
+    writeTempJSON("nsw-case-announcements", nswCasesAnnouncements);
   }
 
   if (nswVax) {
