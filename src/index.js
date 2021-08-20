@@ -32,7 +32,10 @@ const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
 const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
 const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
-const getNSWCasesData = require("./nsw-cases/index.js");
+
+//NSW Case data
+const getNSWCasesHeatmapData = require("./nsw-cases-heatmap/index.js");
+const getNSWCasesAnnouncements = require("./nsw-cases-announcements/index.js");
 
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
@@ -171,7 +174,9 @@ const main = async () => {
   // WA exposre site data
   const {waExposureSites} = await getWAExposureSitesData();
 
-  const { nswCases } = await getNSWCasesData()
+  // NSW Case Data
+  const { nswCasesHeatmap } = await getNSWCasesHeatmapData();
+  const { nswCasesAnnouncements } = await getNSWCasesAnnouncements()
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -393,8 +398,12 @@ const main = async () => {
     writeTempCSV("wa-exposure-sites",waExposureSites);
   }
 
-  if (nswCases) {
-    writeTempJSON("nsw-active-cases", nswCases);
+  if (nswCasesHeatmap) {
+    writeTempJSON("nsw-active-cases", nswCasesHeatmap);
+  }
+
+  if (nswCasesAnnouncements) {
+    writeTempJSON("nsw-case-announcements", nswCasesAnnouncements);
   }
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp

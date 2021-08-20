@@ -1,7 +1,7 @@
 const { getUrl } = require("../getAndParseUrl");
 
 //https://www.nsw.gov.au/covid-19/find-the-facts-about-covid-19
-function getNSWCasesData() {
+function getNSWCasesHeatmapData() {
   return Promise.all([
     getUrl(
       "https://nswdac-covid-19-postcode-heatmap.azurewebsites.net/datafiles/active_cases.json"
@@ -16,15 +16,15 @@ function getNSWCasesData() {
       // https://nswdac-covid-19-postcode-heatmap.azurewebsites.net/index.html
       const latestDate = res[1].data && res[1].data.length ? res[1].data[res[1].data.length - 1].Date : undefined;
       return {
-        nswCases: { latestDate, data: res[0].data},
+        nswCasesHeatmap: { latestDate, data: res[0].data},
       };
     })
     .catch((e) => {
       console.log(e);
       return {
-        nswCases: undefined,
+        nswCasesHeatmap: undefined,
       };
     });
 }
 
-module.exports = getNSWCasesData;
+module.exports = getNSWCasesHeatmapData;
