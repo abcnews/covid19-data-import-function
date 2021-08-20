@@ -34,8 +34,7 @@ const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 
 //NSW Case data
-const getNSWCasesAnnouncements = require("./nsw-cases-announcements/index.js");
-const { getNSWCasesData, getNSWVaxData } = require("./nsw-covid/index.js");
+const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
 
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
