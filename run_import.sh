@@ -13,4 +13,4 @@ node --version
 node -e "console.log('npm version:')"
 npm --version
 
-node src/index.js
+node src/index.js > run_import.log
