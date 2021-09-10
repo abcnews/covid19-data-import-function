@@ -123,6 +123,8 @@ function getAusVaccinationsData() {
         res[0].data
       );
 
+      const ausIndigenousVaccinations = parseIndigenousData(res[0].data);
+
       const ausDosesBreakdown = parseDosesBreakdownData(res[1].data);
 
       const ausAgeBreakdown = res[2];
@@ -131,6 +133,7 @@ function getAusVaccinationsData() {
         ausVaccinationsByAdministration: Papa.unparse(
           ausVaccinationsByAdministration
         ),
+        ausIndigenousVaccinations: Papa.unparse(ausIndigenousVaccinations),
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
         ausAgeBreakdown,
         ausSA4: res[3],
@@ -148,6 +151,42 @@ function getAusVaccinationsData() {
 }
 
 exports.getAusVaccinationsData = getAusVaccinationsData;
+
+function parseIndigenousData(data) {
+  const array = [];
+  const props = [
+    "FIRST_NATIONS_AUS",
+    "FIRST_NATIONS_VIC",
+    "FIRST_NATIONS_QLD",
+    "FIRST_NATIONS_WA",
+    "FIRST_NATIONS_TAS",
+    "FIRST_NATIONS_SA",
+    "FIRST_NATIONS_ACT",
+    "FIRST_NATIONS_NT",
+    "FIRST_NATIONS_NSW",
+  ];
+
+  data.forEach((entry) => {
+    // we use date reported instead of date as at, so add one day to the set as date
+    let date = addDays(new Date(entry["DATE_AS_AT"]), 1);
+
+    if (!entry["FIRST_NATIONS_VIC_FIRST_DOSE_TOTAL"]) {
+      // no data
+      return;
+    }
+    date = format(date, "yyyy/MM/dd");
+
+    props.forEach((p) => {
+      array.push({
+        date,
+        place: p.split("FIRST_NATIONS_")[1],
+        totalFirst: entry[`${p}_FIRST_DOSE_TOTAL`],
+        totalSecond: entry[`${p}_SECOND_DOSE_TOTAL`],
+      });
+    });
+  });
+  return array;
+}
 
 function parseDataByAdministration(data) {
   const array = [];
