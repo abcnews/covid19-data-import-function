@@ -148,6 +148,7 @@ const main = async () => {
   // aus vaccinations data
   const { 
     ausVaccinationsByAdministration, 
+    ausIndigenousVaccinations,
     ausDosesBreakdown, 
     ausAgeBreakdown, 
     ausSA4,
@@ -371,7 +372,9 @@ const main = async () => {
   if (ausSA4) {
     writeTempCSV("aus-sa4", ausSA4);
   }
-
+  if (ausIndigenousVaccinations) {
+    writeTempCSV("aus-indigenous-vaccinations", ausIndigenousVaccinations);
+  }
   if (intlVaccinations) {
     writeTempCSV("intl-vaccinations", intlVaccinations);
   }
