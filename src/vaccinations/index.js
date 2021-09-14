@@ -119,19 +119,19 @@ function getAusVaccinationsData() {
     getUrl("https://vaccinedata.covid19nearme.com.au/data/air_sa4.csv"),
   ])
     .then((res) => {
-      const ausVaccinationsByAdministration = parseDataByAdministration(
+      const { administrationData, locationTotals } = parseDataByAdministration(
         res[0].data
       );
 
       const ausIndigenousVaccinations = parseIndigenousData(res[0].data);
 
-      const ausDosesBreakdown = parseDosesBreakdownData(res[1].data);
+      const ausDosesBreakdown = parseDosesBreakdownData(res[1].data, locationTotals);
 
       const ausAgeBreakdown = res[2];
 
       return {
         ausVaccinationsByAdministration: Papa.unparse(
-          ausVaccinationsByAdministration
+          administrationData
         ),
         ausIndigenousVaccinations: Papa.unparse(ausIndigenousVaccinations),
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
@@ -190,14 +190,16 @@ function parseIndigenousData(data) {
 
 function parseDataByAdministration(data) {
   const array = [];
+  const locationTotalsArray = [];
+
   let agedCarePrevDayFirst = 0;
   let agedCarePrevDaySecond = 0;
   data.forEach((entry) => {
     // we use date reported instead of date as at, so add one day to the set as date
     let date = addDays(new Date(entry["DATE_AS_AT"]), 1);
 
-    if (date < new Date("2021/07/13")) {
-      // a static csv is used for data before 2021/07/13
+    if (date < new Date("2021/07/02")) {
+      // a static csv is used for data before 2021/07/02
       return;
     }
     date = format(date, "yyyy/MM/dd");
@@ -296,8 +298,26 @@ function parseDataByAdministration(data) {
       total: entry["STATE_CLINICS_WA_TOTAL"],
       daily: entry["STATE_CLINICS_WA_LAST_24HR"],
     });
+
+    locationTotalsArray.push({
+      date,
+      place: "NATIONAL",
+      total: entry["TOTALS_NATIONAL_TOTAL"],
+      daily: entry["TOTALS_NATIONAL_LAST_24HR"],
+    });
+  
+    const locations = ['ACT', 'NT', 'VIC', 'NSW', 'SA', 'TAS', 'QLD', 'WA'];
+    locations.forEach(location => {
+      locationTotalsArray.push({
+        date,
+        place: location,
+        total: entry[`STATE_CLINICS_${location}_TOTAL`] + entry[`CWTH_AGED_CARE_${location}_TOTAL`] + entry[`CWTH_PRIMARY_CARE_${location}_TOTAL`],
+        daily: entry[`STATE_CLINICS_${location}_LAST_24HR`] + entry[`CWTH_AGED_CARE_${location}_LAST_24HR`] + entry[`CWTH_PRIMARY_CARE_${location}_LAST_24HR`],
+      });
+    });
   });
-  return array;
+
+  return { administrationData: array, locationTotals: locationTotalsArray };
 }
 
 function addDays(date, days) {
@@ -306,7 +326,7 @@ function addDays(date, days) {
   return result;
 }
 
-function parseDosesBreakdownData(data) {
+function parseDosesBreakdownData(data, locationTotals) {
   const array = [];
   data.forEach((entry) => {
     // we use date reported instead of date as at, so add one day to the set as date
@@ -319,6 +339,10 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
+      // sum of first and second doses does not equal to doses totals due to some 
+      // people receiving a third dose
+      total: locationTotals.find(d => d.date == date && d.place == "NATIONAL")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "NATIONAL")?.daily,
     });
     array.push({
       date,
@@ -327,6 +351,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_NSW_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_NSW_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_NSW_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "NSW")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "NSW")?.daily,
     });
     array.push({
       date,
@@ -335,6 +361,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_VIC_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_VIC_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_VIC_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "VIC")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "VIC")?.daily,
     });
     array.push({
       date,
@@ -343,6 +371,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_QLD_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_QLD_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_QLD_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "QLD")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "QLD")?.daily,
     });
     array.push({
       date,
@@ -351,6 +381,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_WA_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_WA_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_WA_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "WA")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "WA")?.daily,
     });
     array.push({
       date,
@@ -359,6 +391,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_TAS_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_TAS_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_TAS_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "TAS")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "TAS")?.daily,
     });
     array.push({
       date,
@@ -367,6 +401,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_SA_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_SA_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_SA_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "SA")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "SA")?.daily,
     });
     array.push({
       date,
@@ -375,6 +411,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_ACT_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_ACT_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_ACT_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "ACT")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "ACT")?.daily,
     });
     array.push({
       date,
@@ -383,6 +421,8 @@ function parseDosesBreakdownData(data) {
       totalFirstPct: entry["AIR_NT_16_PLUS_FIRST_DOSE_PCT"],
       totalSecond: entry["AIR_NT_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct: entry["AIR_NT_16_PLUS_SECOND_DOSE_PCT"],
+      total: locationTotals.find(d => d.date == date && d.place == "NT")?.total,
+      daily: locationTotals.find(d => d.date == date && d.place == "NT")?.daily,
     });
   });
 
