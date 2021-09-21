@@ -6,6 +6,7 @@ const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
 
 // https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
 const AUS_POPULATION = {
+  '12-15': 1244145,
   '16-29': 4815923,
   '30-39': 3759934,
   '40-49': 3297481,
@@ -109,6 +110,14 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
             population: val.ABS_ERP_JUN_2020_POP,
           });
         }
+        if (val.AGE_LOWER == "12" && val.AGE_UPPER == "15") {
+          ages.push({
+            age: "12-15",
+            totalFirst: val.AIR_RESIDENCE_FIRST_DOSE_COUNT,
+            totalSecond: val.AIR_RESIDENCE_SECOND_DOSE_COUNT,
+            population: val.ABS_ERP_JUN_2020_POP,
+          });
+        }
         if (val.AGE_LOWER == "16" && val.AGE_UPPER == "19") {
           ages.push({
             age: "16-19",
@@ -205,6 +214,9 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
         let population = 0;
         group.ages.forEach(groupAge => {
           const foundAge = ages.find(ageData => ageData.age == groupAge);
+          if (!foundAge) {
+            return;
+          }
           const foundEntry = updatedAges.find(e => e.name == group.name);
           population = +population + +foundAge.population;
           if (foundEntry) {
@@ -238,7 +250,6 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
       });
     });
 
-
     return {
       place: place.key,
       ages: nest()
@@ -262,17 +273,27 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
 //16-29, 30-39, 40-49, 50-69, 70+
 function getAgeGroups() {
   return [
-    { name: "16-29", ages: ["16-19", "20-24", "25-29"], order: 6 },
-    { name: "30-39", ages: ["30-34", "35-39"], order: 5 },
-    { name: "40-49", ages: ["40-44", "45-49"], order: 4 },
-    { name: "50-59", ages: ["50-54", "55-59"], order: 3 },
-    { name: "60-69", ages: ["60-64", "65-69"], order: 2 },
-    { name: "70+", ages: ["70+"], order: 1 },
+    { name: "12-15", ages: ["12-15"] },
+    { name: "16-29", ages: ["16-19", "20-24", "25-29"] },
+    { name: "30-39", ages: ["30-34", "35-39"] },
+    { name: "40-49", ages: ["40-44", "45-49"] },
+    { name: "50-59", ages: ["50-54", "55-59"] },
+    { name: "60-69", ages: ["60-64", "65-69"] },
+    { name: "70+", ages: ["70+"] },
   ];
 }
 
 function getAusCombinedAgeGroups() {
   return [
+    {
+      name: "12-15",
+      totalFirst: [
+        "AIR_12_15_FIRST_DOSE_COUNT",
+      ],
+      totalSecond: [
+        "AIR_12_15_SECOND_DOSE_COUNT",
+      ],
+    },
     {
       name: "16-29",
       totalFirst: [
