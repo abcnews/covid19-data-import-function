@@ -150,6 +150,7 @@ const main = async () => {
     ausVaccinationsByAdministration, 
     ausIndigenousVaccinations,
     ausDosesBreakdown, 
+    ausDosesBreakdownTotalPopulation,
     ausAgeBreakdown, 
     ausSA4,
   } = await getAusVaccinationsData();
@@ -365,8 +366,10 @@ const main = async () => {
   if (ausDosesBreakdown) {
     writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
   }
+  if (ausDosesBreakdownTotalPopulation) {
+    writeTempCSV("aus-doses-breakdown-total-population", ausDosesBreakdownTotalPopulation);
+  }
 
-  return;
   if (ausAgeBreakdown) {
     writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
   }
