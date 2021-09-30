@@ -3,17 +3,7 @@ const { nest } = require('d3');
 const { format } = require("date-fns");
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
-
-// https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
-const AUS_POPULATION = {
-  '12-15': 1244145,
-  '16-29': 4815923,
-  '30-39': 3759934,
-  '40-49': 3297481,
-  '50-59': 3116907,
-  '60-69': 2686529,
-  '70+': 2934706,
-};
+const { AUS_POPULATION_BY_AGE } = require("./constants");
 
 // uses data from https://github.com/jxeeno/aust-govt-covid19-vaccine-pdf
 function getAusAgeBreakdownData() {
@@ -53,7 +43,7 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
         totalSecond = totalSecond + +date[valName];
       });
 
-      const population = AUS_POPULATION[group.name];
+      const population = AUS_POPULATION_BY_AGE[group.name];
 
       return {
         name: group.name,

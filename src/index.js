@@ -366,6 +366,7 @@ const main = async () => {
     writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
   }
 
+  return;
   if (ausAgeBreakdown) {
     writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
   }
