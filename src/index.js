@@ -25,7 +25,7 @@ const query = require("cli-interact").getYesNo;
 const findConfig = require('find-config');
 
 
-const { getIntlVaccinationsData, getAusVaccinationsData }= require("./vaccinations/index.js");
+const { getIntlVaccinationsData, getAusVaccinationsData, getVicVaxData }= require("./vaccinations/index.js");
 const getACTExposureSitesData = require("./act-exposure-sites/index.js");
 const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
 const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
@@ -37,7 +37,7 @@ const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
 
 // Setup some constants
-REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
+REMOTE_ROOT = "/www/dat/news/interactives/covid19-data/katia-test";
 
 // Get FTP credentials from ~/.abc-credentials
 const config = JSON.parse(findConfig.read('.abc-credentials'));
@@ -184,6 +184,7 @@ const main = async () => {
   const { nswCasesAnnouncements } = await getNSWCasesAnnouncements()
   const { nswCases } = await getNSWCasesData()
   const { nswVax } = await getNSWVaxData();
+  const { vicPostcodeVax } = await getVicVaxData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -421,6 +422,11 @@ const main = async () => {
   if (nswVax) {
     writeTempJSON("nsw-vax", nswVax);
   }
+
+  if (vicPostcodeVax) {
+    writeTempCSV("vic-postcode-vax", vicPostcodeVax);
+  }
+
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
