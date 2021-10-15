@@ -38,6 +38,27 @@ function getIntlVaccinationsData() {
     });
 }
 
+function getVicVaxData() {
+  return Promise.all([
+    getUrl("https://vicvaxdata.covid19nearme.com.au/data/vic_poa.csv"),
+  ])
+    .then((res) => {
+      const data = res[0];
+
+      return {
+        vicPostcodeVax: data,
+      };
+    })
+    .catch((e) => {
+      console.log(e);
+      return {
+        vicPostcodeVax: undefined,
+      };
+    });
+}
+
+exports.getVicVaxData = getVicVaxData;
+
 exports.getIntlVaccinationsData = getIntlVaccinationsData;
 
 function formatVaccinations(data) {
