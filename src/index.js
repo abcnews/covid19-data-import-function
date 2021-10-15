@@ -37,7 +37,7 @@ const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
 const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
 
 // Setup some constants
-REMOTE_ROOT = "/www/dat/news/interactives/covid19-data/katia-test";
+REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
 
 // Get FTP credentials from ~/.abc-credentials
 const config = JSON.parse(findConfig.read('.abc-credentials'));
