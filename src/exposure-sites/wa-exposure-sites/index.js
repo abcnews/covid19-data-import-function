@@ -1,4 +1,4 @@
-const { getUrl } = require("../getAndParseUrl");
+const { getUrl } = require("../../getAndParseUrl");
 
 //https://healthywa.wa.gov.au/Articles/A_E/Coronavirus/Locations-visited-by-confirmed-cases
 

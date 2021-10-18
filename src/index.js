@@ -26,12 +26,13 @@ const findConfig = require('find-config');
 
 
 const { getIntlVaccinationsData, getAusVaccinationsData, getVicVaxData }= require("./vaccinations/index.js");
-const getACTExposureSitesData = require("./act-exposure-sites/index.js");
-const getNSWExposureSitesData = require("./nsw-exposure-sites/index.js");
-const getQLDExposureSitesData = require("./qld-exposure-sites/index.js");
-const getSAExposureSitesData = require("./sa-exposure-sites/index.js");
-const getVicExposureSitesData = require("./vic-exposure-sites/index.js");
-const getWAExposureSitesData = require("./wa-exposure-sites/index.js");
+
+const getACTExposureSitesData = require("./exposure-sites/act-exposure-sites/index.js");
+const getNSWExposureSitesData = require("./exposure-sites/nsw-exposure-sites/index.js");
+const getQLDExposureSitesData = require("./exposure-sites/qld-exposure-sites/index.js");
+const getSAExposureSitesData = require("./exposure-sites/sa-exposure-sites/index.js");
+const getVicExposureSitesData = require("./exposure-sites/vic-exposure-sites/index.js");
+const getWAExposureSitesData = require("./exposure-sites/wa-exposure-sites/index.js");
 
 //NSW Case data
 const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");

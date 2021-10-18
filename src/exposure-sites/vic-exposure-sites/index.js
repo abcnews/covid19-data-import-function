@@ -1,4 +1,4 @@
-const { getUrl } = require("../getAndParseUrl");
+const { getUrl } = require("../../getAndParseUrl");
 
 // https://discover.data.vic.gov.au/dataset/all-victorian-sars-cov-2-covid-19-current-exposure-sites
 function getVicExposureSitesData() {
