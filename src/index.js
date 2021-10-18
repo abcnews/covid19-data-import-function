@@ -487,8 +487,8 @@ const main = async () => {
     // var answer = query("ABC network (or VPN) access required for backup and upload. Ready?");
     // console.log("You answered:", answer);
 
-    // Use --no-backup to avoid backing up
-    if (argv.backup || typeof argv.backup === "undefined") {
+    // Use --backup to back up
+    if (argv.backup) {
       // Backup remote data first just in case
       console.log("Backing up data...");
       await backupData();
