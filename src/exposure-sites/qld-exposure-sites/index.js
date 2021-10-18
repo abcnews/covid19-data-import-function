@@ -1,4 +1,4 @@
-const { getUrl } = require("../getAndParseUrl");
+const { getUrl } = require("../../getAndParseUrl");
 
 // https://www.qld.gov.au/health/conditions/health-alerts/coronavirus-covid-19/current-status/contact-tracing
 

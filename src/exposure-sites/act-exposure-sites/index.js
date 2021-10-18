@@ -6,10 +6,11 @@ https://www.covid19.act.gov.au/act-status-and-response/act-covid-19-exposure-loc
 */
 const ACT_HEALTH_URL = 'https://www.covid19.act.gov.au/act-status-and-response/act-covid-19-exposure-locations';
 
+let browser;
 
 async function scrapeACTData(){
     
-  const browser = await puppeteer.launch();
+  browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   //Wait for JS and table to load before scrape
@@ -58,7 +59,8 @@ async function getACTExposureSitesData() {
     let actExposureSites = await scrapeACTData();
     return { actExposureSites };
   } catch (e) {
-    console.log(e);
+    console.error(e);
+    if(browser) browser.close();
     actExposureSites = undefined;
   }
   return {actExposureSites}

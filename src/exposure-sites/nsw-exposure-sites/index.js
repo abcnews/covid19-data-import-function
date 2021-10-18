@@ -1,4 +1,4 @@
-const { getUrl } = require("../getAndParseUrl");
+const { getUrl } = require("../../getAndParseUrl");
 
 //https://www.nsw.gov.au/covid-19/latest-news-and-updates
 function getNSWExposureSitesData() {
