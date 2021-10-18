@@ -37,6 +37,9 @@ const getWAExposureSitesData = require("./exposure-sites/wa-exposure-sites/index
 //NSW Case data
 const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
 
+//COVID 19 Near Me Government data
+const getCovid19NearMeGovtData = require('./covid19nearme-aust-govt');
+
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
 
@@ -186,6 +189,9 @@ const main = async () => {
   const { nswCases } = await getNSWCasesData()
   const { nswVax } = await getNSWVaxData();
   const { vicPostcodeVax } = await getVicVaxData();
+
+  // COVID 19 Australian Government Data
+  const {covid19NearMeGovtData} = await getCovid19NearMeGovtData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -428,6 +434,9 @@ const main = async () => {
     writeTempCSV("vic-postcode-vax", vicPostcodeVax);
   }
 
+  if (covid19NearMeGovtData){
+    writeTempCSV("federal-government-data", covid19NearMeGovtData);
+  }
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
