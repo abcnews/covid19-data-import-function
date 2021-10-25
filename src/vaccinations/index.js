@@ -74,7 +74,7 @@ function formatVaccinations(data) {
         country["alpha3"] && country["alpha3"].toLocaleLowerCase() == isoCode
     );
 
-    if ((isoCode && country) || entry["location"] == "World") {
+    if ((isoCode && country) || entry["location"] == "World" || entry["location"] == 'Taiwan') {
       const val = {
         location: entry["location"],
         continent: country && country.continent,
