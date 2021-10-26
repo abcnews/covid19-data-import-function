@@ -137,7 +137,7 @@ function getAusVaccinationsData() {
     getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/all.csv"),
     getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/air.csv"),
     getAusAgeBreakdownData(),
-    getUrl("https://vaccinedata.covid19nearme.com.au/data/air_sa4.csv"),
+    getUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4.csv"),
   ])
     .then((res) => {
       const { administrationData, locationTotals } = parseDataByAdministration(
