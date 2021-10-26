@@ -26,3 +26,7 @@ Please use this lookup file and fetch individual place data separately from now 
 
 Lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json  
 Example for United States: https://www.abc.net.au/dat/news/interactives/covid19-data/places/us.json
+
+## Development
+
+Please develop on a separate branch. Changes and pull requests pushed to master will go live to production.
