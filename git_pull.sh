@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 git checkout master
 git stash
-git pull
+git pull --quiet
 npm install
