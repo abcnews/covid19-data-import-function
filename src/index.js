@@ -22,10 +22,13 @@ const { sum, min, max, pairs, rollups, ascending } = require("d3-array");
 const { parse } = require("date-fns");
 const slugify = require("slugify");
 const query = require("cli-interact").getYesNo;
-const findConfig = require('find-config');
+const findConfig = require("find-config");
 
-
-const { getIntlVaccinationsData, getAusVaccinationsData, getVicVaxData }= require("./vaccinations/index.js");
+const {
+  getIntlVaccinationsData,
+  getAusVaccinationsData,
+  getVicVaxData,
+} = require("./vaccinations/index.js");
 
 const getACTExposureSitesData = require("./exposure-sites/act-exposure-sites/index.js");
 const getNSWExposureSitesData = require("./exposure-sites/nsw-exposure-sites/index.js");
@@ -35,16 +38,20 @@ const getVicExposureSitesData = require("./exposure-sites/vic-exposure-sites/ind
 const getWAExposureSitesData = require("./exposure-sites/wa-exposure-sites/index.js");
 
 //NSW Case data
-const { getNSWCasesData, getNSWVaxData, getNSWCasesAnnouncements } = require("./nsw-covid/index.js");
+const {
+  getNSWCasesData,
+  getNSWVaxData,
+  getNSWCasesAnnouncements,
+} = require("./nsw-covid/index.js");
 
 //COVID 19 Near Me Government data
-const getCovid19NearMeGovtData = require('./covid19nearme-aust-govt');
+const getCovid19NearMeGovtData = require("./covid19nearme-aust-govt");
 
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
 
 // Get FTP credentials from ~/.abc-credentials
-const config = JSON.parse(findConfig.read('.abc-credentials'));
+const config = JSON.parse(findConfig.read(".abc-credentials"));
 const credentials = config.contentftp;
 
 const {
@@ -150,11 +157,11 @@ const main = async () => {
   const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
   // aus vaccinations data
-  const { 
-    ausVaccinationsByAdministration, 
+  const {
+    ausVaccinationsByAdministration,
     ausIndigenousVaccinations,
-    ausDosesBreakdown, 
-    ausAgeBreakdown, 
+    ausDosesBreakdown,
+    ausAgeBreakdown,
     ausSA4,
   } = await getAusVaccinationsData();
 
@@ -175,23 +182,23 @@ const main = async () => {
   const { nswExposureSites } = await getNSWExposureSitesData();
 
   // QLD exposure site data
-  const {qldExposureSites} = await getQLDExposureSitesData();
+  const { qldExposureSites } = await getQLDExposureSitesData();
 
   // SA Exposure Site data
-  const {saExposureSites} = await getSAExposureSitesData();
+  const { saExposureSites } = await getSAExposureSitesData();
 
   // WA exposre site data
-  const {waExposureSites} = await getWAExposureSitesData();
+  const { waExposureSites } = await getWAExposureSitesData();
 
   // NSW Case Data
 
-  const { nswCasesAnnouncements } = await getNSWCasesAnnouncements()
-  const { nswCases } = await getNSWCasesData()
+  const { nswCasesAnnouncements } = await getNSWCasesAnnouncements();
+  const { nswCases } = await getNSWCasesData();
   const { nswVax } = await getNSWVaxData();
   const { vicPostcodeVax } = await getVicVaxData();
 
   // COVID 19 Australian Government Data
-  const {covid19NearMeGovtData} = await getCovid19NearMeGovtData();
+  const { covid19NearMeGovtData } = await getCovid19NearMeGovtData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -367,7 +374,10 @@ const main = async () => {
   writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
 
   if (ausVaccinationsByAdministration) {
-    writeTempCSV("aus-vaccinations-by-administration", ausVaccinationsByAdministration);
+    writeTempCSV(
+      "aus-vaccinations-by-administration",
+      ausVaccinationsByAdministration
+    );
   }
 
   if (ausDosesBreakdown) {
@@ -394,28 +404,28 @@ const main = async () => {
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
   }
 
-  if(actExposureSites){
-    writeTempJSON("act-exposure-sites",actExposureSites);
+  if (actExposureSites) {
+    writeTempJSON("act-exposure-sites", actExposureSites);
   }
 
   if (vicExposureSites) {
     writeTempCSV("vic-exposure-sites", vicExposureSites);
   }
 
-  if(nswExposureSites){
-    writeTempJSON("nsw-exposure-sites",nswExposureSites);
+  if (nswExposureSites) {
+    writeTempJSON("nsw-exposure-sites", nswExposureSites);
   }
 
-  if(qldExposureSites){
-    writeTempCSV("qld-exposure-sites",qldExposureSites);
+  if (qldExposureSites) {
+    writeTempCSV("qld-exposure-sites", qldExposureSites);
   }
 
-  if(saExposureSites){
-    writeTempCSV("sa-exposure-sites",saExposureSites);
+  if (saExposureSites) {
+    writeTempCSV("sa-exposure-sites", saExposureSites);
   }
 
-  if(waExposureSites){
-    writeTempCSV("wa-exposure-sites",waExposureSites);
+  if (waExposureSites) {
+    writeTempCSV("wa-exposure-sites", waExposureSites);
   }
 
   if (nswCases) {
@@ -434,7 +444,7 @@ const main = async () => {
     writeTempCSV("vic-postcode-vax", vicPostcodeVax);
   }
 
-  if (covid19NearMeGovtData){
+  if (covid19NearMeGovtData) {
     writeTempCSV("federal-government-data", covid19NearMeGovtData);
   }
   // Also upload timestamped data with --timestamp argument

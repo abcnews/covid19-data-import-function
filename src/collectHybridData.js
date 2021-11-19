@@ -9,7 +9,8 @@ const collectHybridData = (
   const hybridData = { ...johnsHopkinsCountryTotals };
 
   // Replace Australia with DSI data
-  hybridData.Australia = dsiFormatted.Australia;
+  // NOTE: ******* DSI DATA NO LONGER BEING UPDATED ********
+  // hybridData.Australia = dsiFormatted.Australia;
 
   // Fill in missing China data from ECDC
   for (let day in ecdcCountryTotals.China) {
