@@ -138,6 +138,7 @@ function getAusVaccinationsData() {
     getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/air.csv"),
     getAusAgeBreakdownData(),
     getUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4.csv"),
+    getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4_indigenous.csv"),
   ])
     .then((res) => {
       const { administrationData, locationTotals } = parseDataByAdministration(
@@ -150,6 +151,8 @@ function getAusVaccinationsData() {
 
       const ausAgeBreakdown = res[2];
 
+      const ausIndigenousSA4Vaccinations = parseAusIndigenousSA4Data(res[4].data);
+
       return {
         ausVaccinationsByAdministration: Papa.unparse(
           administrationData
@@ -158,6 +161,7 @@ function getAusVaccinationsData() {
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
         ausAgeBreakdown,
         ausSA4: res[3],
+        ausIndigenousSA4Vaccinations: Papa.unparse(ausIndigenousSA4Vaccinations),
       };
     })
 
@@ -172,6 +176,20 @@ function getAusVaccinationsData() {
 }
 
 exports.getAusVaccinationsData = getAusVaccinationsData;
+
+
+function parseAusIndigenousSA4Data(data) {
+  return data.map((d) => {
+    return {
+      DATE_AS_AT: d.DATE_AS_AT,
+      STATE: d.STATE,
+      ABS_NAME: d.ABS_NAME, 
+      AIR_FIRST_DOSE_PCT: d.AIR_FIRST_DOSE_PCT,
+      AIR_SECOND_DOSE_PCT: d.AIR_SECOND_DOSE_PCT,
+      ABS_ERP_2019_POPULATION: d.AIR_INDIGENOUS_POPULATION
+    }
+  })
+}
 
 function parseIndigenousData(data) {
   const array = [];
