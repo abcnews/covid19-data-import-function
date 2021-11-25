@@ -404,7 +404,7 @@ const main = async () => {
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
   }
   if (ausIndigenousSA4Vaccinations) {
-    writeTempCSV('aus-indig-sa4', ausIndigenousSA4Vaccinations)
+    writeTempCSV('aus-indigenous-sa4', ausIndigenousSA4Vaccinations)
   }
 
   if (actExposureSites) {
