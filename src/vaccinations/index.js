@@ -137,7 +137,8 @@ function getAusVaccinationsData() {
     getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/all.csv"),
     getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/air.csv"),
     getAusAgeBreakdownData(),
-    getUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4.csv"),
+    getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4.csv"),
+    getAndParseUrl("https://vaccinedata.covid19nearme.com.au/data/geo/air_sa4_indigenous.csv"),
   ])
     .then((res) => {
       const { administrationData, locationTotals } = parseDataByAdministration(
@@ -150,6 +151,10 @@ function getAusVaccinationsData() {
 
       const ausAgeBreakdown = res[2];
 
+      const ausIndigenousSA4Vaccinations = parseAusIndigenousSA4Data(res[4].data);
+
+      const ausSA4 = parseAusSA4(res[3].data);
+
       return {
         ausVaccinationsByAdministration: Papa.unparse(
           administrationData
@@ -157,7 +162,8 @@ function getAusVaccinationsData() {
         ausIndigenousVaccinations: Papa.unparse(ausIndigenousVaccinations),
         ausDosesBreakdown: Papa.unparse(ausDosesBreakdown),
         ausAgeBreakdown,
-        ausSA4: res[3],
+        ausSA4: Papa.unparse(ausSA4),
+        ausIndigenousSA4Vaccinations: Papa.unparse(ausIndigenousSA4Vaccinations),
       };
     })
 
@@ -172,6 +178,34 @@ function getAusVaccinationsData() {
 }
 
 exports.getAusVaccinationsData = getAusVaccinationsData;
+
+function parseAusSA4(data) {
+  return data.map((d) => {
+    return {
+      DATE_AS_AT: d.DATE_AS_AT,
+      STATE: d.STATE,
+      ABS_NAME: d.ABS_NAME, 
+      AIR_FIRST_DOSE_PCT: d.AIR_FIRST_DOSE_PCT,
+      AIR_SECOND_DOSE_PCT: d.AIR_SECOND_DOSE_PCT,
+      ABS_ERP_2019_POPULATION: d.AIR_INDIGENOUS_POPULATION
+    }
+    // keep the last 3 entries of each SA4
+  }).slice(data.length - 3 * 90)
+}
+
+function parseAusIndigenousSA4Data(data) {
+  return data.map((d) => {
+    return {
+      DATE_AS_AT: d.DATE_AS_AT,
+      STATE: d.STATE,
+      ABS_NAME: d.ABS_NAME, 
+      AIR_FIRST_DOSE_PCT: d.AIR_FIRST_DOSE_PCT,
+      AIR_SECOND_DOSE_PCT: d.AIR_SECOND_DOSE_PCT,
+      ABS_ERP_2019_POPULATION: d.AIR_INDIGENOUS_POPULATION
+    }
+    // keep the last 3 entries of each SA4
+  }).slice(data.length - 3 * 90)
+}
 
 function parseIndigenousData(data) {
   const array = [];
@@ -203,10 +237,13 @@ function parseIndigenousData(data) {
         place: p.split("FIRST_NATIONS_")[1],
         totalFirst: entry[`${p}_FIRST_DOSE_TOTAL`],
         totalSecond: entry[`${p}_SECOND_DOSE_TOTAL`],
+        totalFirstPct: entry[`${p}_FIRST_PCT_TOTAL`],
+        totalSecondPct: entry[`${p}_SECOND_PCT_TOTAL`],
       });
     });
   });
-  return array;
+  // keep the last 14 entries of each state
+  return array.slice(array.length - 14 * 9);
 }
 
 function parseDataByAdministration(data) {

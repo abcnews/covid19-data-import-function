@@ -163,6 +163,7 @@ const main = async () => {
     ausDosesBreakdown,
     ausAgeBreakdown,
     ausSA4,
+    ausIndigenousSA4Vaccinations,
   } = await getAusVaccinationsData();
 
   // international vaccinations data
@@ -400,8 +401,10 @@ const main = async () => {
     writeTempCSV("intl-vaccinations-latest", intlVaccinationsCountriesLatest);
   }
   if (intlVaccinesUsage) {
-    console.log(intlVaccinesUsage);
     writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
+  }
+  if (ausIndigenousSA4Vaccinations) {
+    writeTempCSV('aus-indigenous-sa4', ausIndigenousSA4Vaccinations)
   }
 
   if (actExposureSites) {
