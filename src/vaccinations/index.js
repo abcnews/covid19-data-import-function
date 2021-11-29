@@ -9,6 +9,19 @@ const {
   INTERNATIONAL_VACCINES_USAGE,
 } = require("../urls");
 
+
+const AUS_POPULATION = {
+  NATIONAL: 25693342,
+  VIC: 6693860,
+  NSW: 8167063,
+  QLD: 5175273,
+  WA: 2664227,
+  SA: 1770279,
+  TAS: 540536,
+  ACT: 431215,
+  NT: 246223,
+};
+
 function getIntlVaccinationsData() {
   return Promise.all([
     getAndParseUrl(INTERNATIONAL_VACCINATIONS),
@@ -393,12 +406,18 @@ function parseDosesBreakdownData(data, locationTotals) {
     const locations = ['ACT', 'NT', 'VIC', 'NSW', 'SA', 'TAS', 'QLD', 'WA'];
 
     let ausPopulation12to15 = 0;
+    let ausPopulation12plus = 0;
 
     // THIS NEEDS FURTHER WORK
     locations.forEach(location => {
       ausPopulation12to15  = ausPopulation12to15 + entry[`AIR_${location}_12_15_POPULATION`];
 
-      population12plus = entry[`AIR_${location}_12_15_POPULATION`] + entry[`AIR${location}_16_PLUS_POPULATION`]
+      population12plus = entry[`AIR_${location}_12_15_POPULATION`] + entry[`AIR_${location}_16_PLUS_POPULATION`]
+      ausPopulation12plus = ausPopulation12plus + population12plus;
+
+
+      const air_12_15_first_count_location = entry[`AIR_${location}_12_15_FIRST_DOSE_COUNT`] || 0;
+      const air_12_15_second_count_location = entry[`AIR_${location}_12_15_SECOND_DOSE_COUNT`] || 0;
 
       array.push({
         date,
@@ -409,22 +428,28 @@ function parseDosesBreakdownData(data, locationTotals) {
         totalSecondPct: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_PCT`],
 
 
-        totalFirst_12_15: entry[`AIR_${location}_12_15_FIRST_DOSE_COUNT`],
-        totalFirstPct_12_15: entry[`AIR_${location}_12_15_FIRST_DOSE_PCT`],
+        totalFirst_12_15: air_12_15_first_count_location,
+        totalFirstPct_12_15: entry[`AIR_${location}_12_15_FIRST_DOSE_PCT`] || 0,
   
-        totalFirst_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + entry[`AIR_${location}12_15_SECOND_DOSE_COUNT`]),
-        totalFirstPct_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + entry[`AIR_${location}_12_15_SECOND_DOSE_COUNT`]) / population12plus,
+        totalFirst_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location),
+        totalFirstPct_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location) / population12plus * 100,
+
+        totalFirst_all:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location),
+        totalFirstPct_all:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location) / AUS_POPULATION[location] * 100,
   
         totalFirst_16_plus: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`],
         totalFirstPct_16_plus: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_PCT`],
+
   
+        totalSecond_12_15: air_12_15_second_count_location,
+        totalSecondPct_12_15: entry[`AIR_${location}_12_15_SECOND_DOSE_PCT`] || 0,
   
-        totalSecond_12_15: entry[`AIR_${location}_12_15_SECOND_DOSE_COUNT`],
-        totalSecondPct_12_15: entry[`AIR_${location}_12_15_SECOND_DOSE_PCT`],
-  
-        totalSecond_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + entry[`AIR_12_15_SECOND_DOSE_COUNT`]),
-        totalSecondPct_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + entry[`AIR_12_15_SECOND_DOSE_COUNT`]) / population12plus,
-  
+        totalSecond_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location),
+        totalSecondPct_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location) / population12plus * 100,
+
+        totalSecond_all:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location),
+        totalSecondPct_all:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location) / AUS_POPULATION[location] * 100,
+        
         totalSecond_16_plus: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`],
         totalSecondPct_16_plus: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_PCT`],
 
@@ -434,6 +459,8 @@ function parseDosesBreakdownData(data, locationTotals) {
       });
     });
 
+    const air_12_15_first_count = entry["AIR_12_15_FIRST_DOSE_COUNT"] || 0;
+    const air_12_15_second_count = entry["AIR_12_15_SECOND_DOSE_COUNT"] || 0;
     array.push({
       date,
       place: "NATIONAL",
@@ -444,24 +471,32 @@ function parseDosesBreakdownData(data, locationTotals) {
       totalSecondPct: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
 
       
-      totalFirst_12_15: entry["AIR_12_15_FIRST_DOSE_COUNT"],
+      totalFirst_12_15: air_12_15_first_count,
       totalFirstPct_12_15: entry["AIR_12_15_FIRST_DOSE_PCT"],
 
-      totalFirst_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + entry["AIR_12_15_SECOND_DOSE_COUNT"]),
-      // totalFirstPct_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + entry["AIR_12_15_SECOND_DOSE_COUNT"]) / population12to15,
+      totalFirst_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count),
+      totalFirstPct_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count) / ausPopulation12plus * 100,
 
       totalFirst_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
       totalFirstPct_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
 
+      totalFirst_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
+      totalFirstPct_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
 
-      totalSecond_12_15: entry["AIR_12_15_SECOND_DOSE_COUNT"],
+      totalFirst_all:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count),
+      totalFirstPct_all:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count) / AUS_POPULATION['NATIONAL'] * 100,
+
+      totalSecond_12_15: air_12_15_second_count,
       totalSecondPct_12_15: entry["AIR_12_15_SECOND_DOSE_PCT"],
 
-      totalSecond_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + entry["AIR_12_15_SECOND_DOSE_COUNT"]),
-      // totalSecondPct_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + entry["AIR_12_15_SECOND_DOSE_COUNT"]) / population12to15,
+      totalSecond_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] +air_12_15_second_count),
+      totalSecondPct_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count) / ausPopulation12plus * 100,
 
       totalSecond_16_plus: entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"],
       totalSecondPct_16_plus: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
+
+      totalSecond_all:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count),
+      totalSecondPct_all:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count) / AUS_POPULATION['NATIONAL'] * 100,
 
       // sum of first and second doses does not equal to doses totals due to some 
       // people receiving a third dose
