@@ -400,9 +400,14 @@ function addDays(date, days) {
 function parseDosesBreakdownData(data, locationTotals) {
   const array = [];
   data.forEach((entry) => {
+
     // we use date reported instead of date as at, so add one day to the set as date
     let date = format(addDays(new Date(entry["DATE_AS_AT"]), 1), "yyyy/MM/dd");
 
+    if (addDays(new Date(entry["DATE_AS_AT"]), 1) < new Date("2021/07/02")) {
+      return;
+    }
+    
     const locations = ['ACT', 'NT', 'VIC', 'NSW', 'SA', 'TAS', 'QLD', 'WA'];
 
     let ausPopulation12to15 = 0;
