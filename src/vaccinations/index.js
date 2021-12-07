@@ -425,7 +425,6 @@ function parseDosesBreakdownData(data, locationTotals) {
     let ausPopulation12to15 = 0;
     let ausPopulation12plus = 0;
 
-    // THIS NEEDS FURTHER WORK
     locations.forEach(location => {
       ausPopulation12to15  = ausPopulation12to15 + entry[`AIR_${location}_12_15_POPULATION`];
 
@@ -439,6 +438,8 @@ function parseDosesBreakdownData(data, locationTotals) {
       array.push({
         date,
         place: location,
+
+        // 16 plus legacy values (to be removed)
         totalFirst: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`],
         totalFirstPct: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_PCT`],
         totalSecond: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`],
