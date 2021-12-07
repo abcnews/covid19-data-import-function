@@ -22,6 +22,18 @@ const AUS_POPULATION = {
   NT: 246223,
 };
 
+const AUS_POPULATION_12_15 = {
+  NATIONAL: 1243990,
+  VIC: 308611,
+  NSW: 390330,
+  QLD: 270146,
+  WA: 132869,
+  SA: 82747,
+  TAS: 26308,
+  ACT: 19693,
+  NT: 13060,
+};
+
 function getIntlVaccinationsData() {
   return Promise.all([
     getAndParseUrl(INTERNATIONAL_VACCINATIONS),
@@ -417,7 +429,7 @@ function parseDosesBreakdownData(data, locationTotals) {
     locations.forEach(location => {
       ausPopulation12to15  = ausPopulation12to15 + entry[`AIR_${location}_12_15_POPULATION`];
 
-      population12plus = entry[`AIR_${location}_12_15_POPULATION`] + entry[`AIR_${location}_16_PLUS_POPULATION`]
+      population12plus = AUS_POPULATION_12_15[location] + entry[`AIR_${location}_16_PLUS_POPULATION`]
       ausPopulation12plus = ausPopulation12plus + population12plus;
 
 
