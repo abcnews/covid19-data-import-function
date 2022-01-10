@@ -143,6 +143,8 @@ const {
 
 const main = async () => {
 
+  // Story Lab CODE
+  try {
   // Fetch all data
   const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
@@ -373,7 +375,10 @@ const main = async () => {
   // Write global data
   writeTempJSON(`places/global`, formattedJohnsHopkinsGlobal);
 
-
+} catch (e) {
+  console.log(e);
+  console.log('Story Lab CODE BREAKING')
+}
   // DSI CODE
   // - vax charts data
   // - covid charts data 
