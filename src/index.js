@@ -142,6 +142,7 @@ const {
 } = require("./urls");
 
 const main = async () => {
+
   // Fetch all data
   const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
   const johnsHopkinsDeathsParsed = await getAndParseUrl(
@@ -155,51 +156,6 @@ const main = async () => {
   const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
   const dsiFormatted = await getDsiData(DSI_DATA_URL);
   const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
-
-  // aus vaccinations data
-  const {
-    ausVaccinationsByAdministration,
-    ausIndigenousVaccinations,
-    ausDosesBreakdown,
-    ausAgeBreakdown,
-    ausSA4,
-    ausIndigenousSA4Vaccinations,
-  } = await getAusVaccinationsData();
-
-  // international vaccinations data
-  const {
-    intlVaccinations,
-    intlVaccinationsCountriesLatest,
-    intlVaccinesUsage,
-  } = await getIntlVaccinationsData();
-
-  //ACT exposure sites data
-  const { actExposureSites } = await getACTExposureSitesData();
-
-  // Vic exposure sites data
-  const { vicExposureSites } = await getVicExposureSitesData();
-
-  // NSW exposure site data
-  const { nswExposureSites } = await getNSWExposureSitesData();
-
-  // QLD exposure site data
-  const { qldExposureSites } = await getQLDExposureSitesData();
-
-  // SA Exposure Site data
-  const { saExposureSites } = await getSAExposureSitesData();
-
-  // WA exposre site data
-  const { waExposureSites } = await getWAExposureSitesData();
-
-  // NSW Case Data
-
-  const { nswCasesAnnouncements } = await getNSWCasesAnnouncements();
-  const { nswCases } = await getNSWCasesData();
-  const { nswVax } = await getNSWVaxData();
-  const { vicPostcodeVax } = await getVicVaxData();
-
-  // COVID 19 Australian Government Data
-  const { covid19NearMeGovtData } = await getCovid19NearMeGovtData();
 
   // Format Johns Hopkins data
   const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
@@ -374,82 +330,6 @@ const main = async () => {
   // Write countries total with deaths etc
   writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
 
-  if (ausVaccinationsByAdministration) {
-    writeTempCSV(
-      "aus-vaccinations-by-administration",
-      ausVaccinationsByAdministration
-    );
-  }
-
-  if (ausDosesBreakdown) {
-    writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
-  }
-
-  if (ausAgeBreakdown) {
-    writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
-  }
-  if (ausSA4) {
-    writeTempCSV("aus-sa4", ausSA4);
-  }
-  if (ausIndigenousVaccinations) {
-    writeTempCSV("aus-indigenous-vaccinations", ausIndigenousVaccinations);
-  }
-  if (intlVaccinations) {
-    writeTempCSV("intl-vaccinations", intlVaccinations);
-  }
-  if (intlVaccinationsCountriesLatest) {
-    writeTempCSV("intl-vaccinations-latest", intlVaccinationsCountriesLatest);
-  }
-  if (intlVaccinesUsage) {
-    writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
-  }
-  if (ausIndigenousSA4Vaccinations) {
-    writeTempCSV('aus-indigenous-sa4', ausIndigenousSA4Vaccinations)
-  }
-
-  if (actExposureSites) {
-    writeTempJSON("act-exposure-sites", actExposureSites);
-  }
-
-  if (vicExposureSites) {
-    writeTempCSV("vic-exposure-sites", vicExposureSites);
-  }
-
-  if (nswExposureSites) {
-    writeTempJSON("nsw-exposure-sites", nswExposureSites);
-  }
-
-  if (qldExposureSites) {
-    writeTempCSV("qld-exposure-sites", qldExposureSites);
-  }
-
-  if (saExposureSites) {
-    writeTempCSV("sa-exposure-sites", saExposureSites);
-  }
-
-  if (waExposureSites) {
-    writeTempCSV("wa-exposure-sites", waExposureSites);
-  }
-
-  if (nswCases) {
-    writeTempJSON("nsw-active-cases", nswCases);
-  }
-
-  if (nswCasesAnnouncements) {
-    writeTempJSON("nsw-case-announcements", nswCasesAnnouncements);
-  }
-
-  if (nswVax) {
-    writeTempJSON("nsw-vax", nswVax);
-  }
-
-  if (vicPostcodeVax) {
-    writeTempCSV("vic-postcode-vax", vicPostcodeVax);
-  }
-
-  if (covid19NearMeGovtData) {
-    writeTempCSV("federal-government-data", covid19NearMeGovtData);
-  }
   // Also upload timestamped data with --timestamp argument
   // eg. node src/index.js --timestamp
   // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
@@ -492,6 +372,139 @@ const main = async () => {
 
   // Write global data
   writeTempJSON(`places/global`, formattedJohnsHopkinsGlobal);
+
+
+  // DSI CODE
+  // - vax charts data
+  // - covid charts data 
+  // - exposure sites data 
+  try {
+    // aus vaccinations data
+    const {
+      ausVaccinationsByAdministration,
+      ausIndigenousVaccinations,
+      ausDosesBreakdown,
+      ausAgeBreakdown,
+      ausSA4,
+      ausIndigenousSA4Vaccinations,
+    } = await getAusVaccinationsData();
+
+    // international vaccinations data
+    const {
+      intlVaccinations,
+      intlVaccinationsCountriesLatest,
+      intlVaccinesUsage,
+    } = await getIntlVaccinationsData();
+
+    //ACT exposure sites data
+    const { actExposureSites } = await getACTExposureSitesData();
+
+    // Vic exposure sites data
+    const { vicExposureSites } = await getVicExposureSitesData();
+
+    // NSW exposure site data
+    const { nswExposureSites } = await getNSWExposureSitesData();
+
+    // QLD exposure site data
+    const { qldExposureSites } = await getQLDExposureSitesData();
+
+    // SA Exposure Site data
+    const { saExposureSites } = await getSAExposureSitesData();
+
+    // WA exposre site data
+    const { waExposureSites } = await getWAExposureSitesData();
+
+    // NSW Case Data
+
+    const { nswCasesAnnouncements } = await getNSWCasesAnnouncements();
+    const { nswCases } = await getNSWCasesData();
+    const { nswVax } = await getNSWVaxData();
+    const { vicPostcodeVax } = await getVicVaxData();
+
+    // COVID 19 Australian Government Data
+    const { covid19NearMeGovtData } = await getCovid19NearMeGovtData();
+
+    if (ausVaccinationsByAdministration) {
+      writeTempCSV(
+        "aus-vaccinations-by-administration",
+        ausVaccinationsByAdministration
+      );
+    }
+  
+    if (ausDosesBreakdown) {
+      writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
+    }
+  
+    if (ausAgeBreakdown) {
+      writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
+    }
+    if (ausSA4) {
+      writeTempCSV("aus-sa4", ausSA4);
+    }
+    if (ausIndigenousVaccinations) {
+      writeTempCSV("aus-indigenous-vaccinations", ausIndigenousVaccinations);
+    }
+    if (intlVaccinations) {
+      writeTempCSV("intl-vaccinations", intlVaccinations);
+    }
+    if (intlVaccinationsCountriesLatest) {
+      writeTempCSV("intl-vaccinations-latest", intlVaccinationsCountriesLatest);
+    }
+    if (intlVaccinesUsage) {
+      writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
+    }
+    if (ausIndigenousSA4Vaccinations) {
+      writeTempCSV('aus-indigenous-sa4', ausIndigenousSA4Vaccinations)
+    }
+  
+    if (actExposureSites) {
+      writeTempJSON("act-exposure-sites", actExposureSites);
+    }
+  
+    if (vicExposureSites) {
+      writeTempCSV("vic-exposure-sites", vicExposureSites);
+    }
+  
+    if (nswExposureSites) {
+      writeTempJSON("nsw-exposure-sites", nswExposureSites);
+    }
+  
+    if (qldExposureSites) {
+      writeTempCSV("qld-exposure-sites", qldExposureSites);
+    }
+  
+    if (saExposureSites) {
+      writeTempCSV("sa-exposure-sites", saExposureSites);
+    }
+  
+    if (waExposureSites) {
+      writeTempCSV("wa-exposure-sites", waExposureSites);
+    }
+  
+    if (nswCases) {
+      writeTempJSON("nsw-active-cases", nswCases);
+    }
+  
+    if (nswCasesAnnouncements) {
+      writeTempJSON("nsw-case-announcements", nswCasesAnnouncements);
+    }
+  
+    if (nswVax) {
+      writeTempJSON("nsw-vax", nswVax);
+    }
+  
+    if (vicPostcodeVax) {
+      writeTempCSV("vic-postcode-vax", vicPostcodeVax);
+    }
+  
+    if (covid19NearMeGovtData) {
+      writeTempCSV("federal-government-data", covid19NearMeGovtData);
+    }
+
+  } catch (e) {
+    console.log(e);
+    console.log('DSI CODE BREAKING')
+  }
 
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
