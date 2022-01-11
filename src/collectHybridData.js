@@ -1,9 +1,9 @@
 const dayjs = require("dayjs");
 
 const collectHybridData = (
-  johnsHopkinsCountryTotals,
-  dsiFormatted,
-  ecdcCountryTotals
+  johnsHopkinsCountryTotals
+  // dsiFormatted,
+  // ecdcCountryTotals
 ) => {
   // Collect hybrid data from Johns Hopkins
   const hybridData = { ...johnsHopkinsCountryTotals };
@@ -13,21 +13,22 @@ const collectHybridData = (
   // hybridData.Australia = dsiFormatted.Australia;
 
   // Fill in missing China data from ECDC
-  for (let day in ecdcCountryTotals.China) {
-    // Don't process after a certain date
-    if (dayjs(day).isAfter("2020-03-22", "day")) continue;
+  // NOTE: ******* ECDC DATA NO LONGER BEING UPDATED ********
+  // for (let day in ecdcCountryTotals.China) {
+  //   // Don't process after a certain date
+  //   if (dayjs(day).isAfter("2020-03-22", "day")) continue;
 
-    // Store missing dates
-    if (typeof hybridData.China[day] === "undefined") {
-      hybridData.China[day] = ecdcCountryTotals.China[day];
-    }
-  }
+  //   // Store missing dates
+  //   if (typeof hybridData.China[day] === "undefined") {
+  //     hybridData.China[day] = ecdcCountryTotals.China[day];
+  //   }
+  // }
 
   // Sort keys
   const sortedChina = {};
   Object.keys(hybridData.China)
     .sort()
-    .forEach(function(key) {
+    .forEach(function (key) {
       sortedChina[key] = hybridData.China[key];
     });
 
@@ -48,7 +49,7 @@ const collectHybridData = (
   let sortedHybridAustralia = {};
   Object.keys(hybridData.Australia)
     .sort()
-    .forEach(function(key) {
+    .forEach(function (key) {
       sortedHybridAustralia[key] = hybridData.Australia[key];
     });
 
