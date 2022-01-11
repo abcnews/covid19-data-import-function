@@ -37,14 +37,14 @@ const getSAExposureSitesData = require("./exposure-sites/sa-exposure-sites/index
 const getVicExposureSitesData = require("./exposure-sites/vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./exposure-sites/wa-exposure-sites/index.js");
 
-//NSW Case data
+// NSW Case data
 const {
   getNSWCasesData,
   getNSWVaxData,
   getNSWCasesAnnouncements,
 } = require("./nsw-covid/index.js");
 
-//COVID 19 Near Me Government data
+// COVID 19 Near Me Government data
 const getCovid19NearMeGovtData = require("./covid19nearme-aust-govt");
 
 // Setup some constants
@@ -142,247 +142,251 @@ const {
 } = require("./urls");
 
 const main = async () => {
-
   // Story Lab CODE
   try {
-  // Fetch all data
-  const johnsHopkinsCasesParsed = await getAndParseUrl(JOHNS_HOPKINS_CASES_URL);
-  const johnsHopkinsDeathsParsed = await getAndParseUrl(
-    JOHNS_HOPKINS_DEATHS_URL
-  );
-  const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
-    JOHNS_HOPKINS_RECOVERIES_URL
-  );
-  const parsedWho = await getAndParseUrl(WHO_DATA_URL);
-  const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL); // <- Sometimes broken I think
-  const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
-  const dsiFormatted = await getDsiData(DSI_DATA_URL);
-  const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
+    // Fetch all data
+    const johnsHopkinsCasesParsed = await getAndParseUrl(
+      JOHNS_HOPKINS_CASES_URL
+    );
+    const johnsHopkinsDeathsParsed = await getAndParseUrl(
+      JOHNS_HOPKINS_DEATHS_URL
+    );
+    const johnsHopkinsRecoveriesParsed = await getAndParseUrl(
+      JOHNS_HOPKINS_RECOVERIES_URL
+    );
 
-  // Format Johns Hopkins data
-  const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
-    johnsHopkinsCasesParsed.data
-  );
-  const formattedJohnsHopkinsDeathsData = formatJohnsHopkins(
-    johnsHopkinsDeathsParsed.data
-  );
-  const formattedJohnsHopkinsRecoveriesData = formatJohnsHopkins(
-    johnsHopkinsRecoveriesParsed.data
-  );
+    // !!!!! DATA NO LONGER AVAILABLE/NOT BEING UPDATED !!!!!
+    // const parsedWho = await getAndParseUrl(WHO_DATA_URL);
+    // const parsedEcdc = await getAndParseUrl(ECDC_DATA_URL);
+    // const dsiFormatted = await getDsiData(DSI_DATA_URL);
 
-  // Format CTP US states data
-  const formattedCtpUsStatesData = formatCtpUsStates(parsedCtpUsStates.data);
+    const parsedCtpUsStates = await getAndParseUrl(CTP_US_STATES_URL);
 
-  // Object containing all the regions that are part of countries
-  const formattedRegions = {
-    ...getJohnsHopkinsRegions({
-      cases: formattedJohnsHopkinsCasesData,
-      deaths: formattedJohnsHopkinsDeathsData,
-      recoveries: formattedJohnsHopkinsRecoveriesData,
-    }),
-    ...formattedCtpUsStatesData,
-  };
+    const johnsHopkinsGlobal = await getAndParseUrl(JOHNS_HOPKINS_GLOBAL_URL);
 
-  // Combine Johns Hopkins states into countries and reformat
-  const johnsHopkinsCasesCountryTotals = getCountryTotals(
-    formattedJohnsHopkinsCasesData
-  );
-  const johnsHopkinsAfter100 = getAfter100(johnsHopkinsCasesCountryTotals);
+    // Format Johns Hopkins data
+    const formattedJohnsHopkinsCasesData = formatJohnsHopkins(
+      johnsHopkinsCasesParsed.data
+    );
+    const formattedJohnsHopkinsDeathsData = formatJohnsHopkins(
+      johnsHopkinsDeathsParsed.data
+    );
+    const formattedJohnsHopkinsRecoveriesData = formatJohnsHopkins(
+      johnsHopkinsRecoveriesParsed.data
+    );
 
-  const johnsHopkinsDeathsCountryTotals = getCountryTotals(
-    formattedJohnsHopkinsDeathsData
-  );
-  const johnsHopkinsRecoveriesCountryTotals = getCountryTotals(
-    formattedJohnsHopkinsRecoveriesData
-  );
+    // Format CTP US states data
+    const formattedCtpUsStatesData = formatCtpUsStates(parsedCtpUsStates.data);
 
-  // Format WHO data
-  const whoCountryTotals = formatWhoOrEcdc(parsedWho.data);
-  const whoAfter100 = getAfter100(whoCountryTotals);
-
-  // Format ECDC data
-  const ecdcCountryTotals = formatWhoOrEcdc(parsedEcdc.data);
-  const ecdcAfter100 = getAfter100(ecdcCountryTotals);
-
-  // Combining Johns Hopkins + DSI + some ECDC
-  const hybridData = colectHybridData(
-    johnsHopkinsCasesCountryTotals,
-    dsiFormatted,
-    ecdcCountryTotals
-  );
-
-  // Try to account for time zones and differing update times
-  // Previously we were shifting days. Now we remove latest DSI day
-  let finalHybridDate;
-  let finalJohnsHopkinsDate;
-
-  // Get the last day by looping through
-  // TODO: probably find a more direct way to do this
-  for (let day in hybridData.Australia) {
-    finalHybridDate = day;
-  }
-  for (let day in johnsHopkinsCasesCountryTotals.Australia) {
-    finalJohnsHopkinsDate = day;
-  }
-
-  // Now we don't need the days to line up
-  // Up to date data is more important
-  // So we just check all the data is in
-  // by checking if total cases is the same or higher
-  const hybridAustraliaFinalDayCount = hybridData.Australia[finalHybridDate];
-  const hybridAustraliaPenultimateDayCount =
-    hybridData.Australia[
-      dayjs(finalHybridDate).subtract(1, "day").format("YYYY-MM-DD")
-    ];
-
-  console.log(
-    "Latest day: " + hybridAustraliaFinalDayCount,
-    "Yesterday count: " + hybridAustraliaPenultimateDayCount
-  );
-
-  if (hybridAustraliaFinalDayCount < hybridAustraliaPenultimateDayCount) {
-    console.log("DSI data likely incomplete. Deleting final day.");
-    // Delete latest date (probably incomplete)
-    delete hybridData.Australia[finalHybridDate];
-  }
-
-  // Get after 100 cases data for hybrid
-  const hybridAfter100 = getAfter100(hybridData);
-
-  // Counries cases deaths recoveries
-  const hybridExtra = getHybridExtra({
-    originalData: hybridData,
-    deaths: johnsHopkinsDeathsCountryTotals,
-    recoveries: johnsHopkinsRecoveriesCountryTotals,
-  });
-
-  // One master file to rule them all
-  const placesTotals = getPlacesTotals({
-    countries: hybridExtra,
-    regions: formattedRegions,
-  });
-
-  // Separate DSI data for Simon's piece
-  const dsiSourceOfInfection = await getAndParseUrl(
-    DSI_SOURCE_OF_INFECTION_URL
-  );
-
-  const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
-    dsiSourceOfInfection.data
-  );
-
-  // Format global data
-  const formattedJohnsHopkinsGlobal = { name: "Global", type: "aggregate" };
-
-  const globalDates = {};
-
-  for (const dateData of johnsHopkinsGlobal.data) {
-    globalDates[dateData.Date] = {
-      cases: dateData.Confirmed,
-      deaths: dateData.Deaths,
-      recoveries: dateData.Recovered,
+    // Object containing all the regions that are part of countries
+    const formattedRegions = {
+      ...getJohnsHopkinsRegions({
+        cases: formattedJohnsHopkinsCasesData,
+        deaths: formattedJohnsHopkinsDeathsData,
+        recoveries: formattedJohnsHopkinsRecoveriesData,
+      }),
+      ...formattedCtpUsStatesData,
     };
-  }
 
-  formattedJohnsHopkinsGlobal.dates = globalDates;
-
-  // johnsHopkinsGlobal.data.map(
-  //   (dateData) => ({
-  //     [dateData.Date]: {
-  //       cases: dateData.Confirmed,
-  //       deaths: dateData.Deaths,
-  //       recoveries: dateData.Recovered,
-  //     },
-  //   })
-  // );
-
-  // Write files to temporary directory
-  // Clear dir
-  rimraf.sync(TEMP_PATH);
-  console.log("Cleaning tmp directory...");
-
-  // Write full data
-  writeTempJSON("data", formattedJohnsHopkinsCasesData);
-
-  // Write country totals
-  writeTempJSON("country-totals", johnsHopkinsCasesCountryTotals);
-
-  // Write country totals after 100
-  writeTempJSON("after-100-cases", johnsHopkinsAfter100);
-
-  // Write WHO data
-  writeTempJSON("who-country-totals", whoCountryTotals);
-  writeTempJSON("who-after-100-cases", whoAfter100);
-
-  // Write ECDC data
-  writeTempJSON("ecdc-country-totals", ecdcCountryTotals);
-  writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
-
-  // Write Hybrid data to disk, only if AUS 1 day ahead
-  // TODO: Make this the source of truth
-  if (isHybridUpdatable) {
-    writeTempJSON("hybrid-country-totals", hybridData);
-    writeTempJSON("hybrid-after-100-cases", hybridAfter100);
-    writeTempJSON("places-totals", placesTotals); // <-------
-  }
-
-  // Write countries total with deaths etc
-  writeTempJSON("country-totals-extra", hybridExtra);
-
-  // Write countries total with deaths etc
-  writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
-
-  // Also upload timestamped data with --timestamp argument
-  // eg. node src/index.js --timestamp
-  // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
-  if (argv.timestamp) {
-    writeTempJSON(
-      `data${dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]")}`,
+    // Combine Johns Hopkins states into countries and reformat
+    const johnsHopkinsCasesCountryTotals = getCountryTotals(
       formattedJohnsHopkinsCasesData
     );
-  }
+    const johnsHopkinsAfter100 = getAfter100(johnsHopkinsCasesCountryTotals);
 
-  // Let's make a static api to save data transfers if
-  // people only want a certain country
-  const tempPlacesPath = path.join(TEMP_PATH, "places");
+    const johnsHopkinsDeathsCountryTotals = getCountryTotals(
+      formattedJohnsHopkinsDeathsData
+    );
+    const johnsHopkinsRecoveriesCountryTotals = getCountryTotals(
+      formattedJohnsHopkinsRecoveriesData
+    );
 
-  if (!fs.existsSync(tempPlacesPath)) {
-    fs.mkdirSync(tempPlacesPath, { recursive: true });
-  }
+    // Format WHO data
+    // const whoCountryTotals = formatWhoOrEcdc(parsedWho.data);
+    // const whoAfter100 = getAfter100(whoCountryTotals);
 
-  let lookupKey = {};
+    // Format ECDC data
+    // const ecdcCountryTotals = formatWhoOrEcdc(parsedEcdc.data);
+    // const ecdcAfter100 = getAfter100(ecdcCountryTotals);
 
-  for (const placeName in placesTotals) {
-    const individualPlace = { name: placeName, ...placesTotals[placeName] };
-    const slugifiedPlaceName = slugify(placeName, {
-      replacement: "-", // replace spaces with replacement character, defaults to `-`
-      remove: undefined, // remove characters that match regex, defaults to `undefined`
-      lower: true, // convert to lower case, defaults to `false`
-      strict: true, // strip special characters except replacement, defaults to `false`
+    // Combining Johns Hopkins + DSI + some ECDC
+    const hybridData = colectHybridData(
+      johnsHopkinsCasesCountryTotals
+      // dsiFormatted,
+      // ecdcCountryTotals
+    );
+
+    // Try to account for time zones and differing update times
+    // Previously we were shifting days. Now we remove latest DSI day
+    let finalHybridDate;
+    let finalJohnsHopkinsDate;
+
+    // Get the last day by looping through
+    // TODO: probably find a more direct way to do this
+    for (let day in hybridData.Australia) {
+      finalHybridDate = day;
+    }
+    for (let day in johnsHopkinsCasesCountryTotals.Australia) {
+      finalJohnsHopkinsDate = day;
+    }
+
+    // Now we don't need the days to line up
+    // Up to date data is more important
+    // So we just check all the data is in
+    // by checking if total cases is the same or higher
+    const hybridAustraliaFinalDayCount = hybridData.Australia[finalHybridDate];
+    const hybridAustraliaPenultimateDayCount =
+      hybridData.Australia[
+        dayjs(finalHybridDate).subtract(1, "day").format("YYYY-MM-DD")
+      ];
+
+    console.log(
+      "Latest day: " + hybridAustraliaFinalDayCount,
+      "Yesterday count: " + hybridAustraliaPenultimateDayCount
+    );
+
+    if (hybridAustraliaFinalDayCount < hybridAustraliaPenultimateDayCount) {
+      console.log("DSI data likely incomplete. Deleting final day.");
+      // Delete latest date (probably incomplete)
+      delete hybridData.Australia[finalHybridDate];
+    }
+
+    // Get after 100 cases data for hybrid
+    const hybridAfter100 = getAfter100(hybridData);
+
+    // Counries cases deaths recoveries
+    const hybridExtra = getHybridExtra({
+      originalData: hybridData,
+      deaths: johnsHopkinsDeathsCountryTotals,
+      recoveries: johnsHopkinsRecoveriesCountryTotals,
     });
 
-    writeTempJSON(`places/${slugifiedPlaceName}`, individualPlace);
+    // One master file to rule them all
+    const placesTotals = getPlacesTotals({
+      countries: hybridExtra,
+      regions: formattedRegions,
+    });
 
-    // Add to lookup file name
-    lookupKey[placeName] = `${slugifiedPlaceName}.json`;
+    // Separate DSI data for Simon's piece
+    const dsiSourceOfInfection = await getAndParseUrl(
+      DSI_SOURCE_OF_INFECTION_URL
+    );
+
+    const dsiSourceOfInfectionParsed = parseLocalAcquisitionData(
+      dsiSourceOfInfection.data
+    );
+
+    // Format global data
+    const formattedJohnsHopkinsGlobal = { name: "Global", type: "aggregate" };
+
+    const globalDates = {};
+
+    for (const dateData of johnsHopkinsGlobal.data) {
+      globalDates[dateData.Date] = {
+        cases: dateData.Confirmed,
+        deaths: dateData.Deaths,
+        recoveries: dateData.Recovered,
+      };
+    }
+
+    formattedJohnsHopkinsGlobal.dates = globalDates;
+
+    // johnsHopkinsGlobal.data.map(
+    //   (dateData) => ({
+    //     [dateData.Date]: {
+    //       cases: dateData.Confirmed,
+    //       deaths: dateData.Deaths,
+    //       recoveries: dateData.Recovered,
+    //     },
+    //   })
+    // );
+
+    // Write files to temporary directory
+    // Clear dir
+    rimraf.sync(TEMP_PATH);
+    console.log("Cleaning tmp directory...");
+
+    // Write full data
+    writeTempJSON("data", formattedJohnsHopkinsCasesData);
+
+    // Write country totals
+    writeTempJSON("country-totals", johnsHopkinsCasesCountryTotals);
+
+    // Write country totals after 100
+    writeTempJSON("after-100-cases", johnsHopkinsAfter100);
+
+    // Write WHO data
+    // writeTempJSON("who-country-totals", whoCountryTotals);
+    // writeTempJSON("who-after-100-cases", whoAfter100);
+
+    // Write ECDC data
+    // writeTempJSON("ecdc-country-totals", ecdcCountryTotals);
+    // writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
+
+    // Write Hybrid data to disk, only if AUS 1 day ahead
+    // TODO: Make this the source of truth
+    if (isHybridUpdatable) {
+      writeTempJSON("hybrid-country-totals", hybridData);
+      writeTempJSON("hybrid-after-100-cases", hybridAfter100);
+      writeTempJSON("places-totals", placesTotals); // <-------
+    }
+
+    // Write countries total with deaths etc
+    writeTempJSON("country-totals-extra", hybridExtra);
+
+    // Write countries total with deaths etc
+    writeTempJSON("dsi-local-acquisition", dsiSourceOfInfectionParsed);
+
+    // Also upload timestamped data with --timestamp argument
+    // eg. node src/index.js --timestamp
+    // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
+    if (argv.timestamp) {
+      writeTempJSON(
+        `data${dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]")}`,
+        formattedJohnsHopkinsCasesData
+      );
+    }
+
+    // Let's make a static api to save data transfers if
+    // people only want a certain country
+    const tempPlacesPath = path.join(TEMP_PATH, "places");
+
+    if (!fs.existsSync(tempPlacesPath)) {
+      fs.mkdirSync(tempPlacesPath, { recursive: true });
+    }
+
+    let lookupKey = {};
+
+    for (const placeName in placesTotals) {
+      const individualPlace = { name: placeName, ...placesTotals[placeName] };
+      const slugifiedPlaceName = slugify(placeName, {
+        replacement: "-", // replace spaces with replacement character, defaults to `-`
+        remove: undefined, // remove characters that match regex, defaults to `undefined`
+        lower: true, // convert to lower case, defaults to `false`
+        strict: true, // strip special characters except replacement, defaults to `false`
+      });
+
+      writeTempJSON(`places/${slugifiedPlaceName}`, individualPlace);
+
+      // Add to lookup file name
+      lookupKey[placeName] = `${slugifiedPlaceName}.json`;
+    }
+
+    // Add Global to lookup key
+    lookupKey.Global = "global.json";
+
+    writeTempJSON(`places-lookup`, lookupKey);
+
+    // Write global data
+    writeTempJSON(`places/global`, formattedJohnsHopkinsGlobal);
+  } catch (e) {
+    console.log(e);
+    console.log("Story Lab CODE BREAKING!!! Please fix...");
   }
-
-  // Add Global to lookup key
-  lookupKey.Global = "global.json";
-
-  writeTempJSON(`places-lookup`, lookupKey);
-
-  // Write global data
-  writeTempJSON(`places/global`, formattedJohnsHopkinsGlobal);
-
-} catch (e) {
-  console.log(e);
-  console.log('Story Lab CODE BREAKING')
-}
   // DSI CODE
   // - vax charts data
-  // - covid charts data 
-  // - exposure sites data 
+  // - covid charts data
+  // - exposure sites data
   try {
     // aus vaccinations data
     const {
@@ -435,11 +439,11 @@ const main = async () => {
         ausVaccinationsByAdministration
       );
     }
-  
+
     if (ausDosesBreakdown) {
       writeTempCSV("aus-doses-breakdown", ausDosesBreakdown);
     }
-  
+
     if (ausAgeBreakdown) {
       writeTempJSON("aus-age-breakdown", ausAgeBreakdown);
     }
@@ -459,56 +463,55 @@ const main = async () => {
       writeTempCSV("intl-vaccines-usage", intlVaccinesUsage);
     }
     if (ausIndigenousSA4Vaccinations) {
-      writeTempCSV('aus-indigenous-sa4', ausIndigenousSA4Vaccinations)
+      writeTempCSV("aus-indigenous-sa4", ausIndigenousSA4Vaccinations);
     }
-  
+
     if (actExposureSites) {
       writeTempJSON("act-exposure-sites", actExposureSites);
     }
-  
+
     if (vicExposureSites) {
       writeTempCSV("vic-exposure-sites", vicExposureSites);
     }
-  
+
     if (nswExposureSites) {
       writeTempJSON("nsw-exposure-sites", nswExposureSites);
     }
-  
+
     if (qldExposureSites) {
       writeTempCSV("qld-exposure-sites", qldExposureSites);
     }
-  
+
     if (saExposureSites) {
       writeTempCSV("sa-exposure-sites", saExposureSites);
     }
-  
+
     if (waExposureSites) {
       writeTempCSV("wa-exposure-sites", waExposureSites);
     }
-  
+
     if (nswCases) {
       writeTempJSON("nsw-active-cases", nswCases);
     }
-  
+
     if (nswCasesAnnouncements) {
       writeTempJSON("nsw-case-announcements", nswCasesAnnouncements);
     }
-  
+
     if (nswVax) {
       writeTempJSON("nsw-vax", nswVax);
     }
-  
+
     if (vicPostcodeVax) {
       writeTempCSV("vic-postcode-vax", vicPostcodeVax);
     }
-  
+
     if (covid19NearMeGovtData) {
       writeTempCSV("federal-government-data", covid19NearMeGovtData);
     }
-
   } catch (e) {
     console.log(e);
-    console.log('DSI CODE BREAKING')
+    console.log("DSI CODE BREAKING");
   }
 
   // Deploy to FTP by default use --no-ftp to override
@@ -560,44 +563,8 @@ const main = async () => {
 
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
-
-    //     console.log(`Johns Hopkins data:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/data.json
-    // Also:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals.json
-    // And:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/after-100-cases.json
-
-    // WHO country totals:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/who-country-totals.json
-    // WHO after 100:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/who-after-100-cases.json
-
-    // ECDC country totals:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-country-totals.json
-    // ECDC after 100:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/ecdc-after-100-cases.json
-
-    // ABC hybrid country totals:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-country-totals.json
-    // ABC hybrid after 100:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/hybrid-after-100-cases.json
-
-    // ABC hybrid extra data (deaths etc.):
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/country-totals-extra.json
-
-    // Combined data with deaths and recovered and regions etc:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/places-totals.json
-
-    // DSI source of infection data:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/dsi-local-acquisition.json
-
-    // Individual places also available at eg:
-    // https://www.abc.net.au/dat/news/interactives/covid19-data/places/australia.json
-    // Just change the filename to the place you want (slugified) eg. new-zealand.json`);
-
     console.log(
-      "All data files except https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json will be depricated soon..."
+      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json"
     );
   }
 
