@@ -202,8 +202,8 @@ const main = async () => {
     );
 
     // Format WHO data
-    const whoCountryTotals = formatWhoOrEcdc(parsedWho.data);
-    const whoAfter100 = getAfter100(whoCountryTotals);
+    // const whoCountryTotals = formatWhoOrEcdc(parsedWho.data);
+    // const whoAfter100 = getAfter100(whoCountryTotals);
 
     // Format ECDC data
     // const ecdcCountryTotals = formatWhoOrEcdc(parsedEcdc.data);
@@ -316,12 +316,12 @@ const main = async () => {
     writeTempJSON("after-100-cases", johnsHopkinsAfter100);
 
     // Write WHO data
-    writeTempJSON("who-country-totals", whoCountryTotals);
-    writeTempJSON("who-after-100-cases", whoAfter100);
+    // writeTempJSON("who-country-totals", whoCountryTotals);
+    // writeTempJSON("who-after-100-cases", whoAfter100);
 
     // Write ECDC data
-    writeTempJSON("ecdc-country-totals", ecdcCountryTotals);
-    writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
+    // writeTempJSON("ecdc-country-totals", ecdcCountryTotals);
+    // writeTempJSON("ecdc-after-100-cases", ecdcAfter100);
 
     // Write Hybrid data to disk, only if AUS 1 day ahead
     // TODO: Make this the source of truth
@@ -600,7 +600,7 @@ const main = async () => {
     // Just change the filename to the place you want (slugified) eg. new-zealand.json`);
 
     console.log(
-      "All data files except https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json will be depricated soon..."
+      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json"
     );
   }
 
