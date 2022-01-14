@@ -566,7 +566,7 @@ const main = async () => {
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
     console.log(
-      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json"
+      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json places-totals.json no longer updated..."
     );
   }
 
