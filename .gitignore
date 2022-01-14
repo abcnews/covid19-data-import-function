@@ -5,3 +5,4 @@ node_modules
 secret.json
 /backup
 /archive
+/covid-cron.log
