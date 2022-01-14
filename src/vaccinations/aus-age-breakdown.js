@@ -6,6 +6,7 @@ const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
 
 // https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
 const AUS_POPULATION = {
+  '5-11': 2276638,
   '12-15': 1244145,
   '16-29': 4815923,
   '30-39': 3759934,
@@ -110,6 +111,15 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
             population: val.ABS_ERP_JUN_2020_POP,
           });
         }
+        // uncomment once we have data for all states
+        // if (val.AGE_LOWER == "5" && val.AGE_UPPER == "11") {
+        //   ages.push({
+        //     age: "5-11",
+        //     totalFirst: val.AIR_RESIDENCE_FIRST_DOSE_COUNT,
+        //     totalSecond: val.AIR_RESIDENCE_SECOND_DOSE_COUNT,
+        //     population: val.ABS_ERP_JUN_2020_POP,
+        //   });
+        // }
         if (val.AGE_LOWER == "12" && val.AGE_UPPER == "15") {
           ages.push({
             age: "12-15",
@@ -270,9 +280,10 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
   return { data: [ausGrouppedByAge, ...grouppedStateData]};
 }
 
-//16-29, 30-39, 40-49, 50-69, 70+
+//5-11, 16-29, 30-39, 40-49, 50-69, 70+
 function getAgeGroups() {
   return [
+    // { name: "5-11", ages: ["5-11"] },
     { name: "12-15", ages: ["12-15"] },
     { name: "16-29", ages: ["16-19", "20-24", "25-29"] },
     { name: "30-39", ages: ["30-34", "35-39"] },
@@ -285,6 +296,15 @@ function getAgeGroups() {
 
 function getAusCombinedAgeGroups() {
   return [
+    // {
+    //   name: "5-11",
+    //   totalFirst: [
+    //     "AIR_AUS_5_11_FIRST_DOSE_COUNT",
+    //   ],
+    //   totalSecond: [
+    //     "AIR_AUS_5_11_SECOND_DOSE_COUNT",
+    //   ],
+    // },
     {
       name: "12-15",
       totalFirst: [

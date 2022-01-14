@@ -11,7 +11,7 @@ const {
 
 
 const AUS_POPULATION = {
-  NATIONAL: 25693342,
+  AUS: 25693342,
   VIC: 6693860,
   NSW: 8167063,
   QLD: 5175273,
@@ -23,7 +23,7 @@ const AUS_POPULATION = {
 };
 
 const AUS_POPULATION_12_15 = {
-  NATIONAL: 1243990,
+  AUS: 1243990,
   VIC: 308611,
   NSW: 390330,
   QLD: 270146,
@@ -289,7 +289,7 @@ function parseDataByAdministration(data) {
 
     array.push({
       date,
-      place: "NATIONAL",
+      place: "AUS",
       total: entry["TOTALS_NATIONAL_TOTAL"],
       daily: entry["TOTALS_NATIONAL_LAST_24HR"],
       totalFirst: undefined,
@@ -384,7 +384,7 @@ function parseDataByAdministration(data) {
 
     locationTotalsArray.push({
       date,
-      place: "NATIONAL",
+      place: "AUS",
       total: entry["TOTALS_NATIONAL_TOTAL"],
       daily: entry["TOTALS_NATIONAL_LAST_24HR"],
     });
@@ -420,7 +420,7 @@ function parseDosesBreakdownData(data, locationTotals) {
     // we use date reported instead of date as at, so add one day to the set as date
     let date = format(addDays(new Date(entry["DATE_AS_AT"]), 1), "yyyy/MM/dd");
 
-    const locations = ['ACT', 'NT', 'VIC', 'NSW', 'SA', 'TAS', 'QLD', 'WA'];
+    const locations = ['AUS', 'ACT', 'NT', 'VIC', 'NSW', 'SA', 'TAS', 'QLD', 'WA'];
 
     let ausPopulation12to15 = 0;
     let ausPopulation12plus = 0;
@@ -431,6 +431,8 @@ function parseDosesBreakdownData(data, locationTotals) {
       population12plus = AUS_POPULATION_12_15[location] + entry[`AIR_${location}_16_PLUS_POPULATION`]
       ausPopulation12plus = ausPopulation12plus + population12plus;
 
+      const air_5_11_first_count_location = entry[`AIR_${location}_5_11_FIRST_DOSE_COUNT`] || 0;
+      const air_5_11_second_count_location = entry[`AIR_${location}_5_11_SECOND_DOSE_COUNT`] || 0;
 
       const air_12_15_first_count_location = entry[`AIR_${location}_12_15_FIRST_DOSE_COUNT`] || 0;
       const air_12_15_second_count_location = entry[`AIR_${location}_12_15_SECOND_DOSE_COUNT`] || 0;
@@ -439,12 +441,8 @@ function parseDosesBreakdownData(data, locationTotals) {
         date,
         place: location,
 
-        // 16 plus legacy values (to be removed)
-        totalFirst: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`],
-        totalFirstPct: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_PCT`],
-        totalSecond: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`],
-        totalSecondPct: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_PCT`],
-
+        totalFirst_5_11: air_5_11_first_count_location,
+        totalFirstPct_5_11: entry[`AIR_${location}_5_11_FIRST_DOSE_PCT`],
 
         totalFirst_12_15: air_12_15_first_count_location,
         totalFirstPct_12_15: entry[`AIR_${location}_12_15_FIRST_DOSE_PCT`] || 0,
@@ -452,74 +450,33 @@ function parseDosesBreakdownData(data, locationTotals) {
         totalFirst_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location),
         totalFirstPct_12_plus:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location) / population12plus * 100,
 
-        totalFirst_all:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location),
-        totalFirstPct_all:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location) / AUS_POPULATION[location] * 100,
+        totalFirst:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location + air_5_11_first_count_location),
+        totalFirstPct:  (entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`] + air_12_15_first_count_location + air_5_11_first_count_location) / AUS_POPULATION[location] * 100,
   
         totalFirst_16_plus: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_COUNT`],
         totalFirstPct_16_plus: entry[`AIR_${location}_16_PLUS_FIRST_DOSE_PCT`],
 
-  
+        totalSecond_5_11: air_5_11_second_count_location,
+        totalSecondPct_5_11: entry[`AIR_${location}_5_11_SECOND_DOSE_PCT`],
+
         totalSecond_12_15: air_12_15_second_count_location,
         totalSecondPct_12_15: entry[`AIR_${location}_12_15_SECOND_DOSE_PCT`] || 0,
   
         totalSecond_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location),
         totalSecondPct_12_plus:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location) / population12plus * 100,
 
-        totalSecond_all:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location),
-        totalSecondPct_all:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location) / AUS_POPULATION[location] * 100,
+        totalSecond:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location + air_5_11_second_count_location),
+        totalSecondPct:  (entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`] + air_12_15_second_count_location + air_5_11_second_count_location) / AUS_POPULATION[location] * 100,
         
+        totalThird_18_plus: entry[`AIR_${location}_18_PLUS_THIRD_DOSE_COUNT`],
+        totalThirdPct_18_plus: entry[`AIR_${location}_18_PLUS_THIRD_DOSE_PCT`],
+
         totalSecond_16_plus: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_COUNT`],
         totalSecondPct_16_plus: entry[`AIR_${location}_16_PLUS_SECOND_DOSE_PCT`],
-
 
         total: locationTotals.find(d => d.date == date && d.place == location)?.total,
         daily: locationTotals.find(d => d.date == date && d.place == location)?.daily,
       });
-    });
-
-    const air_12_15_first_count = entry["AIR_12_15_FIRST_DOSE_COUNT"] || 0;
-    const air_12_15_second_count = entry["AIR_12_15_SECOND_DOSE_COUNT"] || 0;
-    array.push({
-      date,
-      place: "NATIONAL",
-      // 16 plus legacy values (to be removed)
-      totalFirst: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
-      totalFirstPct: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
-      totalSecond: entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"],
-      totalSecondPct: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
-
-      
-      totalFirst_12_15: air_12_15_first_count,
-      totalFirstPct_12_15: entry["AIR_12_15_FIRST_DOSE_PCT"],
-
-      totalFirst_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count),
-      totalFirstPct_12_plus:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count) / ausPopulation12plus * 100,
-
-      totalFirst_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
-      totalFirstPct_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
-
-      totalFirst_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"],
-      totalFirstPct_16_plus: entry["AIR_AUS_16_PLUS_FIRST_DOSE_PCT"],
-
-      totalFirst_all:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count),
-      totalFirstPct_all:  (entry["AIR_AUS_16_PLUS_FIRST_DOSE_COUNT"] + air_12_15_first_count) / AUS_POPULATION['NATIONAL'] * 100,
-
-      totalSecond_12_15: air_12_15_second_count,
-      totalSecondPct_12_15: entry["AIR_12_15_SECOND_DOSE_PCT"],
-
-      totalSecond_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] +air_12_15_second_count),
-      totalSecondPct_12_plus:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count) / ausPopulation12plus * 100,
-
-      totalSecond_16_plus: entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"],
-      totalSecondPct_16_plus: entry["AIR_AUS_16_PLUS_SECOND_DOSE_PCT"],
-
-      totalSecond_all:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count),
-      totalSecondPct_all:  (entry["AIR_AUS_16_PLUS_SECOND_DOSE_COUNT"] + air_12_15_second_count) / AUS_POPULATION['NATIONAL'] * 100,
-
-      // sum of first and second doses does not equal to doses totals due to some 
-      // people receiving a third dose
-      total: locationTotals.find(d => d.date == date && d.place == "NATIONAL")?.total,
-      daily: locationTotals.find(d => d.date == date && d.place == "NATIONAL")?.daily,
     });
   });
 
