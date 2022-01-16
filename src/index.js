@@ -99,7 +99,7 @@ function writeTempCSV(name, string) {
 }
 
 // TODO: this isn't needed any more I think (check)
-let isHybridUpdatable = true;
+// let isHybridUpdatable = true;
 
 const startTime = dayjs();
 
@@ -325,11 +325,13 @@ const main = async () => {
 
     // Write Hybrid data to disk, only if AUS 1 day ahead
     // TODO: Make this the source of truth
-    if (isHybridUpdatable) {
-      writeTempJSON("hybrid-country-totals", hybridData);
-      writeTempJSON("hybrid-after-100-cases", hybridAfter100);
-      writeTempJSON("places-totals", placesTotals); // <-------
-    }
+    // if (isHybridUpdatable) {
+    writeTempJSON("hybrid-country-totals", hybridData);
+    writeTempJSON("hybrid-after-100-cases", hybridAfter100);
+
+    // DEPRECATED THIS FILE AS 11MB IS TOO BIG
+    // writeTempJSON("places-totals", placesTotals); // <-------
+    // }
 
     // Write countries total with deaths etc
     writeTempJSON("country-totals-extra", hybridExtra);
@@ -339,7 +341,7 @@ const main = async () => {
 
     // Also upload timestamped data with --timestamp argument
     // eg. node src/index.js --timestamp
-    // NOTE: PROBABLY DON'T DO THIS TO NOT WASTE DISK SPACE
+    // NOTE: PROBABLY DON'T DO THIS ALL THE TIME TO NOT WASTE DISK SPACE
     if (argv.timestamp) {
       writeTempJSON(
         `data${dayjs.utc().format("--YYYY-MM-DDTHHmmss[Z]")}`,
@@ -564,7 +566,7 @@ const main = async () => {
     // User feedback
     console.log("Uploaded to FTP...", ftpResponse);
     console.log(
-      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json"
+      "Data lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json places-totals.json no longer updated..."
     );
   }
 
