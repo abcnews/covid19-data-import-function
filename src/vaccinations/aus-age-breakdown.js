@@ -1,19 +1,31 @@
 const Papa = require("papaparse");
-const { nest } = require('d3');
+const { nest } = require("d3");
 const { format } = require("date-fns");
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
 
 // https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
 const AUS_POPULATION = {
-  '5-11': 2276638,
-  '12-15': 1244145,
-  '16-29': 4815923,
-  '30-39': 3759934,
-  '40-49': 3297481,
-  '50-59': 3116907,
-  '60-69': 2686529,
-  '70+': 2934706,
+  "5-11": 2276638,
+  "12-15": 1244145,
+  "16-29": 4815923,
+  "30-39": 3759934,
+  "40-49": 3297481,
+  "50-59": 3116907,
+  "60-69": 2686529,
+  "70+": 2934706,
+};
+
+const AUS_POPULATION_5_11 = {
+  AUS: 2276638,
+  VIC: 578499,
+  NSW: 716460,
+  QLD: 478731,
+  WA: 244154,
+  SA: 148816,
+  TAS: 45033,
+  ACT: 39789,
+  NT: 24750,
 };
 
 // uses data from https://github.com/jxeeno/aust-govt-covid19-vaccine-pdf
@@ -37,10 +49,9 @@ function getAusAgeBreakdownData() {
 
 exports.getAusAgeBreakdownData = getAusAgeBreakdownData;
 
-// Takes aus and states age breakdown data and combines it to the following age groups: 
+// Takes aus and states age breakdown data and combines it to the following age groups:
 // 16-29, 30-39, 40-49, 50-69, 70+
 function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
-
   const ausCombinedAges = ausBreakdownData.map((date) => {
     const groups = getAusCombinedAgeGroups();
 
@@ -76,7 +87,7 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
   ausCombinedAges.forEach(function (date) {
     date.ages.forEach(function (ageGroup) {
       ausFlatDates.push({
-        date: format(date.date, 'yyyy/MM/dd'),
+        date: format(date.date, "yyyy/MM/dd"),
         ...ageGroup,
       });
     });
@@ -85,8 +96,8 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
   const ausGrouppedByAge = {
     place: "AUS",
     ages: nest()
-    .key((d) => d.name)
-    .entries(ausFlatDates),
+      .key((d) => d.name)
+      .entries(ausFlatDates),
   };
 
   const grouppedStateData1 = nest()
@@ -111,15 +122,14 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
             population: val.ABS_ERP_JUN_2020_POP,
           });
         }
-        // uncomment once we have data for all states
-        // if (val.AGE_LOWER == "5" && val.AGE_UPPER == "11") {
-        //   ages.push({
-        //     age: "5-11",
-        //     totalFirst: val.AIR_RESIDENCE_FIRST_DOSE_COUNT,
-        //     totalSecond: val.AIR_RESIDENCE_SECOND_DOSE_COUNT,
-        //     population: val.ABS_ERP_JUN_2020_POP,
-        //   });
-        // }
+        if (val.AGE_LOWER == "5" && val.AGE_UPPER == "11") {
+          ages.push({
+            age: "5-11",
+            totalFirst: val.AIR_RESIDENCE_FIRST_DOSE_COUNT,
+            totalSecond: val.AIR_RESIDENCE_SECOND_DOSE_COUNT,
+            population: AUS_POPULATION_5_11[val.STATE],
+          });
+        }
         if (val.AGE_LOWER == "12" && val.AGE_UPPER == "15") {
           ages.push({
             age: "12-15",
@@ -220,20 +230,24 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
 
       const groups = getAgeGroups();
       const updatedAges = [];
-      groups.forEach(group => {
+      groups.forEach((group) => {
         let population = 0;
-        group.ages.forEach(groupAge => {
-          const foundAge = ages.find(ageData => ageData.age == groupAge);
+        group.ages.forEach((groupAge) => {
+          const foundAge = ages.find((ageData) => ageData.age == groupAge);
           if (!foundAge) {
             return;
           }
-          const foundEntry = updatedAges.find(e => e.name == group.name);
+          const foundEntry = updatedAges.find((e) => e.name == group.name);
           population = +population + +foundAge.population;
           if (foundEntry) {
-            foundEntry.totalFirst = +foundEntry.totalFirst + +foundAge.totalFirst;
-            foundEntry.totalSecond = +foundEntry.totalSecond + +foundAge.totalSecond;
-            foundEntry.totalFirstPct = (foundEntry.totalFirst / population) * 100;
-            foundEntry.totalSecondPct = (foundEntry.totalSecond / population) * 100;
+            foundEntry.totalFirst =
+              +foundEntry.totalFirst + +foundAge.totalFirst;
+            foundEntry.totalSecond =
+              +foundEntry.totalSecond + +foundAge.totalSecond;
+            foundEntry.totalFirstPct =
+              (foundEntry.totalFirst / population) * 100;
+            foundEntry.totalSecondPct =
+              (foundEntry.totalSecond / population) * 100;
           } else {
             updatedAges.push({
               name: group.name,
@@ -254,7 +268,7 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
       date.ages.forEach(function (ageGroup) {
         flatDates.push({
           // we use date reported instead of date as at, so add one day to the set as date
-          date: format(addDays(new Date(date.date), 1), 'yyyy/MM/dd'),
+          date: format(addDays(new Date(date.date), 1), "yyyy/MM/dd"),
           ...ageGroup,
         });
       });
@@ -269,21 +283,21 @@ function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
   });
 
   const flatPlacesData = [];
-  [ausGrouppedByAge, ...grouppedStateData].forEach(place => {
-    place.ages.forEach(age => {
+  [ausGrouppedByAge, ...grouppedStateData].forEach((place) => {
+    place.ages.forEach((age) => {
       flatPlacesData.push({
         ...place,
         age,
       });
     });
   });
-  return { data: [ausGrouppedByAge, ...grouppedStateData]};
+  return { data: [ausGrouppedByAge, ...grouppedStateData] };
 }
 
 //5-11, 16-29, 30-39, 40-49, 50-69, 70+
 function getAgeGroups() {
   return [
-    // { name: "5-11", ages: ["5-11"] },
+    { name: "5-11", ages: ["5-11"] },
     { name: "12-15", ages: ["12-15"] },
     { name: "16-29", ages: ["16-19", "20-24", "25-29"] },
     { name: "30-39", ages: ["30-34", "35-39"] },
@@ -296,23 +310,15 @@ function getAgeGroups() {
 
 function getAusCombinedAgeGroups() {
   return [
-    // {
-    //   name: "5-11",
-    //   totalFirst: [
-    //     "AIR_AUS_5_11_FIRST_DOSE_COUNT",
-    //   ],
-    //   totalSecond: [
-    //     "AIR_AUS_5_11_SECOND_DOSE_COUNT",
-    //   ],
-    // },
+    {
+      name: "5-11",
+      totalFirst: ["AIR_AUS_5_11_FIRST_DOSE_COUNT"],
+      totalSecond: ["AIR_AUS_5_11_SECOND_DOSE_COUNT"],
+    },
     {
       name: "12-15",
-      totalFirst: [
-        "AIR_12_15_FIRST_DOSE_COUNT",
-      ],
-      totalSecond: [
-        "AIR_12_15_SECOND_DOSE_COUNT",
-      ],
+      totalFirst: ["AIR_12_15_FIRST_DOSE_COUNT"],
+      totalSecond: ["AIR_12_15_SECOND_DOSE_COUNT"],
     },
     {
       name: "16-29",
