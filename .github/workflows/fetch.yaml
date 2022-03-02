@@ -1,0 +1,26 @@
+name: Fetch and upload data
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  schedule:
+    - cron: "1 16 * * *"
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: npm install
+      - name: Fetch latest data
+        env:
+          SPACES_SECRET: ${{ secrets.SPACES_SECRET }}
+        run: |-
+          node src/index.js --no-ftp && node src/do.js

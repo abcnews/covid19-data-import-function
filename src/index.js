@@ -50,10 +50,6 @@ const getCovid19NearMeGovtData = require("./covid19nearme-aust-govt");
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
 
-// Get FTP credentials from ~/.abc-credentials
-const config = JSON.parse(findConfig.read(".abc-credentials"));
-const credentials = config.contentftp;
-
 const {
   formatJohnsHopkins,
   formatWhoOrEcdc,
@@ -519,6 +515,10 @@ const main = async () => {
   // Deploy to FTP by default use --no-ftp to override
   // TODO: Implement a progress monitor
   if (argv.ftp || typeof argv.ftp === "undefined") {
+    // Get FTP credentials from ~/.abc-credentials
+    const config = JSON.parse(findConfig.read(".abc-credentials"));
+    const credentials = config.contentftp;
+
     // DON'T WAIT FOR USER INPUT ANY MORE (NOT REQUIRED)
     // var answer = query("ABC network (or VPN) access required for backup and upload. Ready?");
     // console.log("You answered:", answer);

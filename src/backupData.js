@@ -7,9 +7,6 @@ const dayjs = require("dayjs");
 const rimraf = require("rimraf");
 const findConfig = require("find-config");
 
-const config = JSON.parse(findConfig.read(".abc-credentials"));
-const credentials = config.contentftp;
-
 // First clear current backups
 rimraf.sync("./backup/*");
 
@@ -29,6 +26,9 @@ function makeDirIfNotExist(dir) {
 }
 
 const backupData = async () => {
+  const config = JSON.parse(findConfig.read(".abc-credentials"));
+  const credentials = config.contentftp;
+
   // Some ftp credentials for backup purposes
   const connectionResponse = await ftp.connect({
     host: credentials.host,
