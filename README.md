@@ -24,8 +24,12 @@ Combined data files have become too large and will soon be deprecated.
 
 Please use this lookup file and fetch individual place data separately from now on.
 
-Lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json  
-Example for United States: https://www.abc.net.au/dat/news/interactives/covid19-data/places/us.json
+~~Lookup: https://www.abc.net.au/dat/news/interactives/covid19-data/places-lookup.json~~
+~~Example for United States: https://www.abc.net.au/dat/news/interactives/covid19-data/places/us.json~~
+
+https://abcnewsdata.sgp1.digitaloceanspaces.com/covid-data/places-lookup.json
+https://abcnewsdata.sgp1.digitaloceanspaces.com/covid-data/places/us.json
+
 
 ## Development
 
