@@ -12,8 +12,6 @@ on:
 jobs:
   scheduled:
     runs-on: ubuntu-latest
-    env:
-      SPACES_SECRET: ${{ secrets.SPACES_SECRET }}
     steps:
       - name: Check out this repo
         uses: actions/checkout@v2
@@ -23,5 +21,7 @@ jobs:
           node-version: "14"
       - run: npm install
       - name: Fetch latest data
+        env:
+          SPACES_SECRET: ${{ secrets.SPACES_SECRET }}
         run: |-
           node src/index.js --no-ftp && node src/do.js

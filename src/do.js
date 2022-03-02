@@ -45,20 +45,17 @@ const filesLoop = async (dir) => {
   } catch (e) {
     // Catch anything bad that happens
     console.error("Error uploading files", e);
+    throw e; // let it die
   }
 };
 
 // Step 4: Define a function that uploads your object using SDK's PutObjectCommand object and catches any errors.
 const uploadObject = async (params) => {
-  try {
-    const data = await s3Client.send(new PutObjectCommand(params));
-    console.log(
-      "Successfully uploaded object: " + params.Bucket + "/" + params.Key
-    );
-    return data;
-  } catch (err) {
-    console.log("Error", err);
-  }
+  const data = await s3Client.send(new PutObjectCommand(params));
+  console.log(
+    "Successfully uploaded object: " + params.Bucket + "/" + params.Key
+  );
+  return data;
 };
 
 filesLoop(TEMP_PATH);
