@@ -34,6 +34,7 @@ const filesLoop = async (dir) => {
           Key: "covid-data" + dir.substr(TEMP_PATH.length) + "/" + file,
           Body: fs.readFileSync(fullPath),
           ACL: "public-read",
+          ContentType: "application/json",
         };
         // console.log("params :>> ", params);
         uploadObject(params);
