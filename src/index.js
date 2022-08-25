@@ -37,6 +37,9 @@ const getSAExposureSitesData = require("./exposure-sites/sa-exposure-sites/index
 const getVicExposureSitesData = require("./exposure-sites/vic-exposure-sites/index.js");
 const getWAExposureSitesData = require("./exposure-sites/wa-exposure-sites/index.js");
 
+// AUS Covid data
+const { getAusCovidData } = require("./aus-covid/index.js");
+
 // NSW Case data
 const {
   getNSWCasesData,
@@ -386,6 +389,12 @@ const main = async () => {
   // - covid charts data
   // - exposure sites data
   try {
+    // aus covid data
+    const ausDataArr = await getAusCovidData();
+    ausDataArr.forEach((d) => {
+      writeTempCSV(d.name, d.data);
+    });
+
     // aus vaccinations data
     const {
       ausVaccinationsByAdministration,
