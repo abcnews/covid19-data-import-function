@@ -47,9 +47,6 @@ const {
   getNSWCasesAnnouncements,
 } = require("./nsw-covid/index.js");
 
-// COVID 19 Near Me Government data
-const getCovid19NearMeGovtData = require("./covid19nearme-aust-govt");
-
 // Setup some constants
 REMOTE_ROOT = "/www/dat/news/interactives/covid19-data";
 
@@ -437,9 +434,6 @@ const main = async () => {
     const { nswVax } = await getNSWVaxData();
     const { vicPostcodeVax } = await getVicVaxData();
 
-    // COVID 19 Australian Government Data
-    const { covid19NearMeGovtData } = await getCovid19NearMeGovtData();
-
     if (ausVaccinationsByAdministration) {
       writeTempCSV(
         "aus-vaccinations-by-administration",
@@ -511,10 +505,6 @@ const main = async () => {
 
     if (vicPostcodeVax) {
       writeTempCSV("vic-postcode-vax", vicPostcodeVax);
-    }
-
-    if (covid19NearMeGovtData) {
-      writeTempCSV("federal-government-data", covid19NearMeGovtData);
     }
   } catch (e) {
     console.log(e);
