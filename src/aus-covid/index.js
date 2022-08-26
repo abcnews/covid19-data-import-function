@@ -83,7 +83,7 @@ module.exports.getAusCovidData = () => {
         const index = entries.indexOf(entryExists);
 
         if (index !== -1) {
-          items[index] = entry;
+          entries[index] = entry;
         }
       } else {
         entries.push(entry);
