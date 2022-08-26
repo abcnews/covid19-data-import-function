@@ -7,3 +7,4 @@ secret.json
 /archive
 /covid-cron.log
 .envrc
+package-lock.json
