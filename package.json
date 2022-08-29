@@ -29,5 +29,8 @@
     "slugify": "^1.4.0",
     "yargs": "^15.3.0",
     "zip-a-folder": "0.0.12"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3"
   }
 }
