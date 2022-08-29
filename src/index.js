@@ -59,7 +59,8 @@ const {
 const getCountryTotals = require("./getCountryTotals");
 const getAfter100 = require("./getAfter100");
 const { getAndParseUrl, getUrl } = require("./getAndParseUrl");
-const getDsiData = require("./getDsiData");
+// No longer needed?
+// const getDsiData = require("./getDsiData");
 const colectHybridData = require("./collectHybridData");
 const getHybridExtra = require("./getHybridExtra");
 const getPlacesTotals = require("./getPlacesTotals");
