@@ -14,7 +14,7 @@ exports.WHO_DATA_URL = "https://covid.ourworldindata.org/data/full_data.csv";
 exports.ECDC_DATA_URL =
   "https://covid.ourworldindata.org/data/ecdc/full_data.csv";
 
-exports.CTP_US_STATES_URL = "https://covidtracking.com/api/v1/states/daily.csv";
+exports.CTP_US_STATES_URL = "https://api.covidtracking.com/v1/states/daily.csv";
 
 exports.DSI_DATA_URL =
   "https://covid-sheets-mirror.web.app/api?sheet=1nUUU5zPRPlhAXM_-8R7lsMnAkK4jaebvIL5agAaKoXk&range=Daily%20Count%20States!A:E";
