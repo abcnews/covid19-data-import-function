@@ -10,6 +10,18 @@ const cleanNumber = (string) => {
   return string.replace(/\D/g, "");
 };
 
+function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
+
 const ALLOWED_COLUMNS_PREFIXES = [
   "AUS",
   "ACT",
@@ -52,12 +64,7 @@ module.exports.getAusCovidData = () => {
         return [];
       }
 
-      const month =
-        dateObj.getMonth() + 1 < 10
-          ? `0${dateObj.getMonth() + 1}`
-          : dateObj.getMonth() + 1;
-
-      const dateString = `${dateObj.getFullYear()}-${month}-${dateObj.getDate()}`;
+      const dateString = formatDate(dateObj);
 
       const entry = {
         DATE: dateString,
