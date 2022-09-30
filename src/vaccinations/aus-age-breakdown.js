@@ -1,5 +1,5 @@
 const Papa = require("papaparse");
-const { nest } = require("d3");
+import { nest } from "d3";
 const { format } = require("date-fns");
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
