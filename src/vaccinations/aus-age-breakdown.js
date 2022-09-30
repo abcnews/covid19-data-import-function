@@ -4,8 +4,6 @@ const { format } = require("date-fns");
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
 
-import("d3").then((nest) => {});
-
 // https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
 const AUS_POPULATION = {
   "5-11": 2276638,
@@ -52,7 +50,7 @@ function getAusAgeBreakdownData() {
 // Takes aus and states age breakdown data and combines it to the following age groups:
 // 16-29, 30-39, 40-49, 50-69, 70+
 async function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
-  const { nest } = await import("d3");
+  const { nest } = await import("d3-collection");
 
   const ausCombinedAges = ausBreakdownData.map((date) => {
     const groups = getAusCombinedAgeGroups();
