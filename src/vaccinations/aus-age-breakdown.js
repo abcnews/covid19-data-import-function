@@ -1,8 +1,10 @@
 const Papa = require("papaparse");
-const { nest } = require("d3");
+
 const { format } = require("date-fns");
 
 const { getUrl, getAndParseUrl } = require("../getAndParseUrl");
+
+import("d3").then((nest) => {});
 
 // https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/jun-2020#:~:text=ABS.Stat%20datasets-,Key%20statistics,due%20to%20net%20overseas%20migration.
 const AUS_POPULATION = {
@@ -36,8 +38,8 @@ function getAusAgeBreakdownData() {
       "https://vaccinedata.covid19nearme.com.au/data/air_residence.csv"
     ),
   ])
-    .then((res) => {
-      const parsedData = parseAusAgeBreakdown(res[0].data, res[1].data);
+    .then(async (res) => {
+      const parsedData = await parseAusAgeBreakdown(res[0].data, res[1].data);
       return parsedData;
     })
 
@@ -47,11 +49,11 @@ function getAusAgeBreakdownData() {
     });
 }
 
-exports.getAusAgeBreakdownData = getAusAgeBreakdownData;
-
 // Takes aus and states age breakdown data and combines it to the following age groups:
 // 16-29, 30-39, 40-49, 50-69, 70+
-function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
+async function parseAusAgeBreakdown(ausBreakdownData, statesBreakdownData) {
+  const { nest } = await import("d3");
+
   const ausCombinedAges = ausBreakdownData.map((date) => {
     const groups = getAusCombinedAgeGroups();
 
@@ -378,3 +380,5 @@ function addDays(date, days) {
   result.setDate(result.getDate() + days);
   return result;
 }
+
+exports.getAusAgeBreakdownData = getAusAgeBreakdownData;
